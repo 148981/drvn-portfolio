@@ -94,7 +94,7 @@ frontend/   React 前端：src/（介面與訓練引擎）、scripts/（稽核�
 backend/    FastAPI 後端：core/（姿勢分析、計劃規則、資料模型）、tests/
 ios/        App/（iPhone 原生層）、Watch/（Apple Watch App）、Widget/
 research/   專題的分析與圖表腳本
-docs/       架構圖、三份檢查標準、專題海報
+docs/       架構圖、三份檢查標準、專題海報、作品集 PDF
 ```
 
 © 2026 陳冠甫。僅供審閱，未授權重製或商業使用。
