@@ -1,0 +1,70 @@
+/* ══════════════════════════════════════════════════════════════════════════
+ * 地圖圖磚的色調
+ * ══════════════════════════════════════════════════════════════════════════
+ * 調色跟著「現在正在用的來源」走 —— <DrvnTileLayer> 會把來源的 tint 寫成
+ * 容器上的 data-tile-tint，這裡照它決定要不要動顏色。
+ *
+ *   data-tile-tint="none"  → 一點都不動（OSM 標準圖磚）
+ *   data-tile-tint="warm"  → 極輕的暖化（Esri Light Gray，本來就是灰的）
+ *
+ * ⚠️ 主要來源 OSM 標準圖磚是 none，這是刻意的。
+ *    以前這裡對所有淺色地圖一律套灰階濾鏡，公園的綠、水域的藍、主要道路的橘
+ *    會全部被洗成灰的 —— 使用者要的就是 leafletjs.com 首頁那張的原色。
+ *    要灰底請換來源（Esri），不要在這裡拿濾鏡硬壓。
+ *
+ * ⚠️ 濾鏡只作用在圖磚層（.leaflet-tile-pane），不會影響路線、標記與控制項 ——
+ *    那些是 SVG / DOM，濾鏡套上去會把路線也一起洗掉。
+ *
+ * ⚠️ 旗標不可以掛在 <html> 上：同一頁另一張用別的來源的地圖會一起被套到。
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── 調色：只看 data-tile-tint ─────────────────────────────────────────
+ * ⚠️ 不要再用 .drvn-map--light / --dark 當濾鏡的條件：
+ *    ① 衛星是深底（--dark）但照片不能反相；
+ *    ② 那兩個 class 以前靠 <MapContainer className> 給，而 react-leaflet
+ *       只在第一次掛載時讀 className —— 切樣式後 class 不會變，深色濾鏡永遠套不上。
+ *    現在由 <DrvnTileLayer> 依樣式寫 data-tile-tint（none / warm / invert）。 */
+
+/* 原色（OSM 標準圖磚、衛星）—— 什麼都不做 */
+.drvn-map[data-tile-tint="none"] .leaflet-tile-pane {
+    filter: none;
+}
+
+/* 極輕的暖化（Esri Light Gray）：跟 DRVN 的 Paper/Stone 暖中性版面同溫。
+   不做灰階 —— 它本來就是灰的，再灰會糊。
+   來源還沒決定時（屬性未寫入）也走這條，避免第一幀閃一下。 */
+.drvn-map[data-tile-tint="warm"] .leaflet-tile-pane,
+.drvn-map:not([data-tile-tint]) .leaflet-tile-pane {
+    filter: sepia(0.10) saturate(0.88) brightness(1.03);
+}
+
+/* 深色地圖：把極簡灰底反相成暖炭色。
+   hue-rotate(180deg) 讓反相後的色偏轉回來；sepia 帶一點暖，跟 DRVN 的墨黑同溫。 */
+.drvn-map[data-tile-tint="invert"] .leaflet-tile-pane {
+    filter: invert(0.92) hue-rotate(180deg) brightness(0.85) contrast(1.12) saturate(0.6) sepia(0.08);
+}
+
+/* ── 控制項與底色 ───────────────────────────────────────────────────── */
+
+/* 標註要看得見，但不要搶版面 */
+.drvn-map .leaflet-control-attribution {
+    background: rgba(246, 244, 241, 0.72);
+    font-size: 10px;
+    color: rgba(22, 20, 21, 0.45);
+}
+
+/* 圖磚還沒進來的那一瞬間，底不要是 leaflet 預設的冷灰 #ddd。
+   用 DRVN 的 Paper，換場才不會閃一下。 */
+.drvn-map.leaflet-container {
+    background: #F1EEEA;
+}
+.drvn-map--dark.leaflet-container,
+.drvn-map[data-tile-tint="invert"].leaflet-container {
+    background: #14120F;
+}
+
+/* 深底上的標註改深色玻璃，不要一塊亮白貼在角落 */
+.drvn-map--dark .leaflet-control-attribution {
+    background: rgba(20, 18, 15, 0.6);
+    color: rgba(246, 244, 241, 0.45);
+}

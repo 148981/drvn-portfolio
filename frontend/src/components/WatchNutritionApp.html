@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch Nutrition App — Swiss Minimalist</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding: 40px 20px;
+  }
+
+  /* ─── Watch Shell ─── */
+  .watch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .watch-label {
+    color: #555;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .watch-shell {
+    position: relative;
+    width: 198px;
+    height: 242px;
+    background: #111;
+    border-radius: 54px;
+    border: 2px solid #2a2a2a;
+    box-shadow:
+      0 0 0 1px #0a0a0a,
+      0 12px 48px rgba(0,0,0,0.8),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Crown buttons */
+  .watch-shell::before {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 62px;
+    width: 6px;
+    height: 24px;
+    background: #222;
+    border-radius: 0 3px 3px 0;
+    border: 1px solid #333;
+  }
+  .watch-shell::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 96px;
+    width: 6px;
+    height: 16px;
+    background: #222;
+    border-radius: 0 3px 3px 0;
+    border: 1px solid #333;
+  }
+
+  /* ─── Screen ─── */
+  .screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    display: none;
+    flex-direction: column;
+    background: #0D0C0B;
+    overflow: hidden;
+    transition: opacity 0.3s ease;
+  }
+  .screen.active { display: flex; }
+
+  /* ─── NAV DOTS ─── */
+  .nav-dots {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 0 4px;
+    flex-shrink: 0;
+  }
+  .nav-dots span {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #333;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .nav-dots span.active { background: #fff; }
+
+  /* ─── TYPOGRAPHY ─── */
+  .label-xs {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #555;
+  }
+  .label-sm {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .value-lg {
+    font-size: 28px;
+    font-weight: 100;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .value-md {
+    font-size: 18px;
+    font-weight: 200;
+    color: #fff;
+  }
+  .unit {
+    font-size: 9px;
+    color: #555;
+    letter-spacing: 0.1em;
+  }
+
+  /* ═══════════════════════════════
+     SCREEN 1 — DASHBOARD
+  ═══════════════════════════════ */
+  #screen-dashboard {
+    padding: 0;
+  }
+
+  .dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px 0;
+    flex-shrink: 0;
+  }
+  .dash-time {
+    font-size: 11px;
+    font-weight: 300;
+    color: #888;
+    letter-spacing: 0.05em;
+  }
+  .dash-date {
+    font-size: 9px;
+    color: #444;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Semicircular Calorie Gauge */
+  .gauge-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+    height: 90px;
+  }
+
+  #gauge-svg {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gauge-center {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: 30px;
+  }
+  .gauge-kcal {
+    font-size: 22px;
+    font-weight: 100;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .gauge-sub {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    color: #444;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .gauge-remaining {
+    font-size: 9px;
+    color: #888;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+
+  /* 4 Macro Rings */
+  .macro-rings {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 8px 10px 4px;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .ring-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .ring-item svg { display: block; }
+  .ring-value {
+    font-size: 9px;
+    font-weight: 300;
+    color: #ccc;
+  }
+  .ring-label {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #444;
+  }
+
+  /* Divider */
+  .dash-divider {
+    height: 1px;
+    background: #1a1a1a;
+    margin: 0 14px;
+    flex-shrink: 0;
+  }
+
+  /* Meal + Water Summary Bar */
+  .summary-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
+  .sum-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .sum-val {
+    font-size: 13px;
+    font-weight: 200;
+    color: #fff;
+  }
+  .sum-lbl {
+    font-size: 7px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #444;
+  }
+  .sum-sep {
+    width: 1px;
+    background: #1e1e1e;
+    align-self: stretch;
+  }
+
+  /* Progress Bars */
+  .dash-bars {
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bar-name {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #444;
+    width: 22px;
+  }
+  .bar-track {
+    flex: 1;
+    height: 2px;
+    background: #1e1e1e;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.5s ease;
+  }
+  .bar-pct {
+    font-size: 7px;
+    color: #444;
+    width: 18px;
+    text-align: right;
+  }
+
+  /* ═══════════════════════════════
+     SCREEN 2 — QUICK ADD
+  ═══════════════════════════════ */
+  #screen-quickadd {
+    padding: 0;
+  }
+
+  .qa-header {
+    padding: 10px 14px 6px;
+    flex-shrink: 0;
+  }
+  .qa-title {
+    font-size: 12px;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .qa-subtitle {
+    font-size: 8px;
+    color: #444;
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* Meal Tabs */
+  .meal-tabs {
+    display: flex;
+    padding: 0 12px;
+    gap: 4px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .meal-tabs::-webkit-scrollbar { display: none; }
+  .meal-tab {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid #222;
+    color: #555;
+    transition: all 0.2s;
+  }
+  .meal-tab.active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+  }
+
+  /* Food Grid */
+  .food-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    scrollbar-width: none;
+    align-content: start;
+  }
+  .food-grid::-webkit-scrollbar { display: none; }
+
+  .food-card {
+    background: #141414;
+    border-radius: 8px;
+    padding: 7px 8px;
+    border: 1px solid #1e1e1e;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .food-card:active { transform: scale(0.96); }
+  .food-card.selected {
+    background: #1a1a1a;
+    border-color: #fff;
+  }
+  .food-card.selected .food-check { opacity: 1; }
+
+  .food-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .food-emoji { font-size: 16px; line-height: 1; }
+  .food-check {
+    font-size: 9px;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .food-name {
+    font-size: 9px;
+    color: #ccc;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+  }
+  .food-kcal {
+    font-size: 10px;
+    font-weight: 200;
+    color: #fff;
+  }
+  .food-unit {
+    font-size: 7px;
+    color: #444;
+  }
+
+  /* Log Button */
+  .qa-footer {
+    padding: 5px 14px 8px;
+    flex-shrink: 0;
+  }
+  .log-btn {
+    width: 100%;
+    padding: 7px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .log-btn:active { transform: scale(0.97); }
+  .log-btn:disabled {
+    background: #1e1e1e;
+    color: #444;
+    cursor: default;
+  }
+
+  /* ═══════════════════════════════
+     SCREEN 3 — HYDRATION
+  ═══════════════════════════════ */
+  #screen-water {
+    padding: 0;
+  }
+
+  .water-header {
+    padding: 10px 14px 4px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .water-title {
+    font-size: 12px;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .water-goal-lbl {
+    font-size: 8px;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+
+  /* Swiss Watch Dial */
+  .dial-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    height: 110px;
+    position: relative;
+  }
+  #dial-svg { display: block; }
+  .dial-center {
+    position: absolute;
+    text-align: center;
+  }
+  .dial-ml {
+    font-size: 20px;
+    font-weight: 100;
+    color: #fff;
+    line-height: 1;
+  }
+  .dial-unit {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    color: #444;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .dial-pct {
+    font-size: 8px;
+    color: #666;
+    margin-top: 1px;
+  }
+
+  /* Water Progress Bar */
+  .water-bar-wrap {
+    padding: 0 18px;
+    flex-shrink: 0;
+  }
+  .water-bar-track {
+    height: 3px;
+    background: #1a1a1a;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .water-bar-fill {
+    height: 100%;
+    background: #4ea8de;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* Add Buttons */
+  .water-btns {
+    display: flex;
+    gap: 5px;
+    padding: 8px 12px 5px;
+    flex-shrink: 0;
+  }
+  .water-btn {
+    flex: 1;
+    padding: 7px 0;
+    background: #141414;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .water-btn:active { transform: scale(0.95); background: #1e1e1e; }
+  .water-btn-drop { font-size: 12px; }
+  .water-btn-lbl { font-size: 7px; color: #555; letter-spacing: 0.08em; }
+
+  /* Today Log */
+  .water-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 14px 6px;
+    scrollbar-width: none;
+  }
+  .water-log::-webkit-scrollbar { display: none; }
+  .water-log-title {
+    font-size: 7px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .water-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid #131313;
+  }
+  .water-entry-time {
+    font-size: 8px;
+    color: #444;
+  }
+  .water-entry-amt {
+    font-size: 9px;
+    color: #888;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #fff;
+    color: #000;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── Single Watch (interactive demo) ─── -->
+<div class="watch-container">
+  <div class="watch-label">NUTRITION · WATCH</div>
+  <div class="watch-shell" id="watch">
+
+    <!-- SCREEN 1: DASHBOARD -->
+    <div class="screen active" id="screen-dashboard">
+      <!-- Header -->
+      <div class="dash-header">
+        <span class="dash-time" id="watch-time">09:41</span>
+        <span class="dash-date">MON · 05 MAY</span>
+      </div>
+
+      <!-- Semicircular Gauge -->
+      <div class="gauge-wrap">
+        <svg id="gauge-svg" width="170" height="90" viewBox="0 0 170 90">
+          <!-- Track -->
+          <path d="M 15 85 A 70 70 0 0 1 155 85"
+                fill="none" stroke="#1e1e1e" stroke-width="6"
+                stroke-linecap="round"/>
+          <!-- Fill -->
+          <path id="gauge-fill" d="M 15 85 A 70 70 0 0 1 155 85"
+                fill="none" stroke="#fff" stroke-width="6"
+                stroke-linecap="round"
+                stroke-dasharray="220"
+                stroke-dashoffset="220"/>
+          <!-- Tick marks -->
+          <g id="gauge-ticks"></g>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-kcal" id="gauge-kcal">0</div>
+          <div class="gauge-sub">KCAL CONSUMED</div>
+          <div class="gauge-remaining" id="gauge-remain">2000 REMAINING</div>
+        </div>
+      </div>
+
+      <!-- Macro Rings -->
+      <div class="macro-rings">
+        <div class="ring-item">
+          <svg width="34" height="34" viewBox="0 0 34 34">
+            <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e1e" stroke-width="4"/>
+            <circle id="ring-protein" cx="17" cy="17" r="14" fill="none" stroke="#e8e8e8" stroke-width="4"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88"
+                    transform="rotate(-90 17 17)"/>
+          </svg>
+          <div class="ring-value" id="val-protein">0g</div>
+          <div class="ring-label">PROT</div>
+        </div>
+        <div class="ring-item">
+          <svg width="34" height="34" viewBox="0 0 34 34">
+            <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e1e" stroke-width="4"/>
+            <circle id="ring-carbs" cx="17" cy="17" r="14" fill="none" stroke="#a8d8a8" stroke-width="4"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88"
+                    transform="rotate(-90 17 17)"/>
+          </svg>
+          <div class="ring-value" id="val-carbs">0g</div>
+          <div class="ring-label">CARB</div>
+        </div>
+        <div class="ring-item">
+          <svg width="34" height="34" viewBox="0 0 34 34">
+            <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e1e" stroke-width="4"/>
+            <circle id="ring-fat" cx="17" cy="17" r="14" fill="none" stroke="#f5c97a" stroke-width="4"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88"
+                    transform="rotate(-90 17 17)"/>
+          </svg>
+          <div class="ring-value" id="val-fat">0g</div>
+          <div class="ring-label">FAT</div>
+        </div>
+        <div class="ring-item">
+          <svg width="34" height="34" viewBox="0 0 34 34">
+            <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e1e" stroke-width="4"/>
+            <circle id="ring-fiber" cx="17" cy="17" r="14" fill="none" stroke="#4ea8de" stroke-width="4"
+                    stroke-linecap="round" stroke-dasharray="88" stroke-dashoffset="88"
+                    transform="rotate(-90 17 17)"/>
+          </svg>
+          <div class="ring-value" id="val-fiber">0g</div>
+          <div class="ring-label">FIBR</div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="dash-divider"></div>
+
+      <!-- Summary Bar -->
+      <div class="summary-bar">
+        <div class="sum-item">
+          <span class="sum-val" id="sum-meals">0</span>
+          <span class="sum-lbl">MEALS</span>
+        </div>
+        <div class="sum-sep"></div>
+        <div class="sum-item">
+          <span class="sum-val" id="sum-water">0</span>
+          <span class="sum-lbl">ML WATER</span>
+        </div>
+        <div class="sum-sep"></div>
+        <div class="sum-item">
+          <span class="sum-val" id="sum-streak">—</span>
+          <span class="sum-lbl">STREAK</span>
+        </div>
+      </div>
+
+      <!-- Macro Bars -->
+      <div class="dash-bars">
+        <div class="bar-row">
+          <span class="bar-name">PROT</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-protein" style="width:0%;background:#e8e8e8"></div></div>
+          <span class="bar-pct" id="bp-protein">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-name">CARB</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-carbs" style="width:0%;background:#a8d8a8"></div></div>
+          <span class="bar-pct" id="bp-carbs">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-name">FAT</span>
+          <div class="bar-track"><div class="bar-fill" id="bar-fat" style="width:0%;background:#f5c97a"></div></div>
+          <span class="bar-pct" id="bp-fat">0%</span>
+        </div>
+      </div>
+
+      <!-- Nav Dots -->
+      <div class="nav-dots" style="margin-top:auto">
+        <span class="active" onclick="goScreen(0)"></span>
+        <span onclick="goScreen(1)"></span>
+        <span onclick="goScreen(2)"></span>
+      </div>
+
+      <div class="toast" id="toast-dash"></div>
+    </div>
+
+    <!-- SCREEN 2: QUICK ADD -->
+    <div class="screen" id="screen-quickadd">
+      <div class="qa-header">
+        <div class="qa-title">QUICK ADD</div>
+        <div class="qa-subtitle" id="qa-selected-count">SELECT ITEMS TO LOG</div>
+      </div>
+
+      <!-- Meal Tabs -->
+      <div class="meal-tabs">
+        <div class="meal-tab active" onclick="setMealTab(this,'早餐')">早餐</div>
+        <div class="meal-tab" onclick="setMealTab(this,'午餐')">午餐</div>
+        <div class="meal-tab" onclick="setMealTab(this,'晚餐')">晚餐</div>
+        <div class="meal-tab" onclick="setMealTab(this,'點心')">點心</div>
+      </div>
+
+      <!-- Food Grid -->
+      <div class="food-grid" id="food-grid"></div>
+
+      <!-- Footer -->
+      <div class="qa-footer">
+        <button class="log-btn" id="log-btn" disabled onclick="logSelected()">LOG SELECTION</button>
+      </div>
+
+      <!-- Nav Dots -->
+      <div class="nav-dots">
+        <span onclick="goScreen(0)"></span>
+        <span class="active" onclick="goScreen(1)"></span>
+        <span onclick="goScreen(2)"></span>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: HYDRATION -->
+    <div class="screen" id="screen-water">
+      <div class="water-header">
+        <span class="water-title">HYDRATION</span>
+        <span class="water-goal-lbl" id="water-goal-lbl">GOAL 2500ML</span>
+      </div>
+
+      <!-- Swiss Dial -->
+      <div class="dial-wrap">
+        <svg id="dial-svg" width="130" height="110" viewBox="0 0 130 110">
+          <!-- Outer ring track -->
+          <circle cx="65" cy="65" r="50" fill="none" stroke="#161616" stroke-width="10"/>
+          <!-- Fill arc -->
+          <circle id="dial-fill" cx="65" cy="65" r="50" fill="none" stroke="#4ea8de" stroke-width="10"
+                  stroke-linecap="round"
+                  stroke-dasharray="314" stroke-dashoffset="314"
+                  transform="rotate(-90 65 65)"/>
+          <!-- Swiss tick marks -->
+          <g id="dial-ticks"></g>
+          <!-- Center dot -->
+          <circle cx="65" cy="65" r="3" fill="#222"/>
+        </svg>
+        <div class="dial-center">
+          <div class="dial-ml" id="dial-ml">0</div>
+          <div class="dial-unit">ML</div>
+          <div class="dial-pct" id="dial-pct">0%</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="water-bar-wrap">
+        <div class="water-bar-track">
+          <div class="water-bar-fill" id="water-bar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Add Buttons -->
+      <div class="water-btns">
+        <button class="water-btn" onclick="addWater(250)">
+          <span class="water-btn-drop">💧</span>
+          <span>+250</span>
+          <span class="water-btn-lbl">GLASS</span>
+        </button>
+        <button class="water-btn" onclick="addWater(500)">
+          <span class="water-btn-drop">🍶</span>
+          <span>+500</span>
+          <span class="water-btn-lbl">BOTTLE</span>
+        </button>
+        <button class="water-btn" onclick="addWater(750)">
+          <span class="water-btn-drop">🫙</span>
+          <span>+750</span>
+          <span class="water-btn-lbl">LARGE</span>
+        </button>
+      </div>
+
+      <!-- Today Log -->
+      <div class="water-log">
+        <div class="water-log-title">TODAY'S LOG</div>
+        <div id="water-entries"></div>
+      </div>
+
+      <!-- Nav Dots -->
+      <div class="nav-dots">
+        <span onclick="goScreen(0)"></span>
+        <span onclick="goScreen(1)"></span>
+        <span class="active" onclick="goScreen(2)"></span>
+      </div>
+
+      <div class="toast" id="toast-water"></div>
+    </div>
+
+  </div><!-- /.watch-shell -->
+</div><!-- /.watch-container -->
+
+<script>
+/* ───────────────────────────────────────
+   STATE
+─────────────────────────────────────── */
+const GOAL = { calories: 2000, protein: 150, carbs: 200, fat: 65, fiber: 25, water: 2500 };
+
+const state = {
+  screen: 0,
+  calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+  meals: 0,
+  water: 0,
+  waterLog: [],
+  streak: 3,
+  selectedFoods: new Set(),
+  currentMeal: '早餐',
+};
+
+/* ───────────────────────────────────────
+   FOOD DATABASE
+─────────────────────────────────────── */
+const FOOD_DB = {
+  '早餐': [
+    { id:'b1', emoji:'🥚', name:'水煮蛋', kcal:78, p:6, c:0.6, f:5, fi:0, g:50 },
+    { id:'b2', emoji:'🥛', name:'牛奶', kcal:120, p:8, c:12, f:5, fi:0, g:240 },
+    { id:'b3', emoji:'🍞', name:'全麥吐司', kcal:120, p:4, c:22, f:2, fi:2, g:60 },
+    { id:'b4', emoji:'🍌', name:'香蕉', kcal:89, p:1, c:23, f:0, fi:3, g:100 },
+    { id:'b5', emoji:'🫐', name:'藍莓', kcal:57, p:1, c:14, f:0, fi:2, g:100 },
+    { id:'b6', emoji:'🧃', name:'柳橙汁', kcal:112, p:2, c:26, f:0, fi:0, g:240 },
+  ],
+  '午餐': [
+    { id:'l1', emoji:'🍗', name:'雞胸肉', kcal:165, p:31, c:0, f:4, fi:0, g:100 },
+    { id:'l2', emoji:'🍚', name:'白飯', kcal:206, p:4, c:45, f:0, fi:1, g:158 },
+    { id:'l3', emoji:'🥦', name:'花椰菜', kcal:55, p:4, c:11, f:1, fi:5, g:150 },
+    { id:'l4', emoji:'🥗', name:'生菜沙拉', kcal:35, p:2, c:7, f:0, fi:3, g:100 },
+    { id:'l5', emoji:'🥚', name:'炒蛋', kcal:148, p:10, c:2, f:11, fi:0, g:100 },
+    { id:'l6', emoji:'🐟', name:'鮭魚', kcal:208, p:20, c:0, f:13, fi:0, g:100 },
+  ],
+  '晚餐': [
+    { id:'d1', emoji:'🥩', name:'牛排', kcal:271, p:26, c:0, f:18, fi:0, g:100 },
+    { id:'d2', emoji:'🍠', name:'地瓜', kcal:103, p:2, c:24, f:0, fi:3, g:130 },
+    { id:'d3', emoji:'🥬', name:'菠菜', kcal:23, p:3, c:4, f:0, fi:2, g:100 },
+    { id:'d4', emoji:'🍳', name:'煎豆腐', kcal:145, p:10, c:4, f:10, fi:1, g:120 },
+    { id:'d5', emoji:'🍜', name:'蕎麥麵', kcal:192, p:8, c:42, f:1, fi:3, g:200 },
+    { id:'d6', emoji:'🥚', name:'溫泉蛋', kcal:78, p:6, c:0.6, f:5, fi:0, g:50 },
+  ],
+  '點心': [
+    { id:'s1', emoji:'🍎', name:'蘋果', kcal:52, p:0, c:14, f:0, fi:2, g:100 },
+    { id:'s2', emoji:'🥜', name:'腰果', kcal:157, p:5, c:9, f:12, fi:1, g:30 },
+    { id:'s3', emoji:'🍫', name:'黑巧克力', kcal:170, p:2, c:13, f:12, fi:3, g:30 },
+    { id:'s4', emoji:'🧁', name:'希臘優格', kcal:100, p:17, c:6, f:1, fi:0, g:170 },
+    { id:'s5', emoji:'🍊', name:'柳橙', kcal:47, p:1, c:12, f:0, fi:2, g:100 },
+    { id:'s6', emoji:'🌰', name:'杏仁', kcal:164, p:6, c:6, f:14, fi:3, g:30 },
+  ],
+};
+
+/* ───────────────────────────────────────
+   SCREEN NAVIGATION
+─────────────────────────────────────── */
+const screens = ['screen-dashboard','screen-quickadd','screen-water'];
+function goScreen(idx) {
+  screens.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.toggle('active', i === idx);
+  });
+  state.screen = idx;
+  // Update all nav dots
+  document.querySelectorAll('.nav-dots').forEach(group => {
+    group.querySelectorAll('span').forEach((dot, i) => {
+      dot.classList.toggle('active', i === idx);
+    });
+  });
+}
+
+/* ───────────────────────────────────────
+   GAUGE — SEMICIRCLE
+─────────────────────────────────────── */
+function initGaugeTicks() {
+  const svg = document.getElementById('gauge-svg');
+  const g = document.getElementById('gauge-ticks');
+  const cx = 85, cy = 85, r = 70;
+  for (let i = 0; i <= 20; i++) {
+    const angle = Math.PI + (i / 20) * Math.PI; // 180° → 360°
+    const isMajor = i % 5 === 0;
+    const r1 = r - (isMajor ? 10 : 6);
+    const r2 = r - (isMajor ? 4 : 3);
+    const x1 = cx + r1 * Math.cos(angle);
+    const y1 = cy + r1 * Math.sin(angle);
+    const x2 = cx + r2 * Math.cos(angle);
+    const y2 = cy + r2 * Math.sin(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', isMajor ? '#2a2a2a' : '#1a1a1a');
+    line.setAttribute('stroke-width', isMajor ? '1.5' : '1');
+    g.appendChild(line);
+  }
+}
+
+function updateGauge() {
+  const pct = Math.min(state.calories / GOAL.calories, 1);
+  const totalLen = 220;
+  const fill = document.getElementById('gauge-fill');
+  fill.style.strokeDashoffset = totalLen * (1 - pct);
+  document.getElementById('gauge-kcal').textContent = state.calories;
+  const remain = Math.max(0, GOAL.calories - state.calories);
+  document.getElementById('gauge-remain').textContent =
+    remain > 0 ? `${remain} REMAINING` : 'GOAL REACHED';
+}
+
+/* ───────────────────────────────────────
+   MACRO RINGS
+─────────────────────────────────────── */
+function updateRings() {
+  const macros = [
+    { id:'ring-protein', val:state.protein, goal:GOAL.protein, valId:'val-protein', unit:'g' },
+    { id:'ring-carbs',   val:state.carbs,   goal:GOAL.carbs,   valId:'val-carbs',   unit:'g' },
+    { id:'ring-fat',     val:state.fat,     goal:GOAL.fat,     valId:'val-fat',     unit:'g' },
+    { id:'ring-fiber',   val:state.fiber,   goal:GOAL.fiber,   valId:'val-fiber',   unit:'g' },
+  ];
+  macros.forEach(m => {
+    const pct = Math.min(m.val / m.goal, 1);
+    const len = 88;
+    document.getElementById(m.id).style.strokeDashoffset = len * (1 - pct);
+    document.getElementById(m.valId).textContent = Math.round(m.val) + m.unit;
+  });
+}
+
+/* ───────────────────────────────────────
+   BARS
+─────────────────────────────────────── */
+function updateBars() {
+  const bars = [
+    { bar:'bar-protein', bp:'bp-protein', val:state.protein, goal:GOAL.protein },
+    { bar:'bar-carbs',   bp:'bp-carbs',   val:state.carbs,   goal:GOAL.carbs },
+    { bar:'bar-fat',     bp:'bp-fat',     val:state.fat,     goal:GOAL.fat },
+  ];
+  bars.forEach(b => {
+    const pct = Math.min(Math.round(b.val / b.goal * 100), 100);
+    document.getElementById(b.bar).style.width = pct + '%';
+    document.getElementById(b.bp).textContent = pct + '%';
+  });
+  document.getElementById('sum-meals').textContent = state.meals;
+  document.getElementById('sum-water').textContent = state.water;
+  document.getElementById('sum-streak').textContent = state.streak + 'D';
+}
+
+/* ───────────────────────────────────────
+   QUICK ADD — FOOD GRID
+─────────────────────────────────────── */
+function renderFoodGrid(meal) {
+  const foods = FOOD_DB[meal] || [];
+  const grid = document.getElementById('food-grid');
+  grid.innerHTML = '';
+  foods.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'food-card' + (state.selectedFoods.has(f.id) ? ' selected' : '');
+    card.innerHTML = `
+      <div class="food-top">
+        <span class="food-emoji">${f.emoji}</span>
+        <span class="food-check">✓</span>
+      </div>
+      <div class="food-name">${f.name}</div>
+      <div><span class="food-kcal">${f.kcal}</span> <span class="food-unit">KCAL / ${f.g}G</span></div>
+    `;
+    card.addEventListener('click', () => toggleFood(f.id, card));
+    grid.appendChild(card);
+  });
+  updateLogBtn();
+}
+
+function setMealTab(el, meal) {
+  document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  state.currentMeal = meal;
+  state.selectedFoods.clear();
+  renderFoodGrid(meal);
+}
+
+function toggleFood(id, card) {
+  if (state.selectedFoods.has(id)) {
+    state.selectedFoods.delete(id);
+    card.classList.remove('selected');
+  } else {
+    state.selectedFoods.add(id);
+    card.classList.add('selected');
+  }
+  updateLogBtn();
+}
+
+function updateLogBtn() {
+  const n = state.selectedFoods.size;
+  const btn = document.getElementById('log-btn');
+  const lbl = document.getElementById('qa-selected-count');
+  btn.disabled = n === 0;
+  lbl.textContent = n === 0 ? 'SELECT ITEMS TO LOG' : `${n} ITEM${n>1?'S':''} SELECTED`;
+}
+
+function logSelected() {
+  const foods = FOOD_DB[state.currentMeal] || [];
+  let added = 0;
+  state.selectedFoods.forEach(id => {
+    const f = foods.find(x => x.id === id);
+    if (f) {
+      state.calories += f.kcal;
+      state.protein  += f.p;
+      state.carbs    += f.c;
+      state.fat      += f.f;
+      state.fiber    += f.fi;
+      added++;
+    }
+  });
+  state.meals += 1;
+  state.selectedFoods.clear();
+  renderFoodGrid(state.currentMeal);
+  updateGauge();
+  updateRings();
+  updateBars();
+  showToast('toast-dash', `+${added} LOGGED`);
+  setTimeout(() => goScreen(0), 600);
+}
+
+/* ───────────────────────────────────────
+   HYDRATION DIAL (Swiss ticks)
+─────────────────────────────────────── */
+function initDialTicks() {
+  const g = document.getElementById('dial-ticks');
+  const cx = 65, cy = 65, r = 50;
+  const total = 60;
+  for (let i = 0; i < total; i++) {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const isMajor = i % 5 === 0;
+    const r1 = r - (isMajor ? 9 : 5);
+    const r2 = r - (isMajor ? 3 : 2);
+    const x1 = cx + r1 * Math.cos(angle);
+    const y1 = cy + r1 * Math.sin(angle);
+    const x2 = cx + r2 * Math.cos(angle);
+    const y2 = cy + r2 * Math.sin(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', isMajor ? '#2e2e2e' : '#1e1e1e');
+    line.setAttribute('stroke-width', isMajor ? '1.5' : '0.8');
+    g.appendChild(line);
+  }
+}
+
+function updateDial() {
+  const pct = Math.min(state.water / GOAL.water, 1);
+  const circ = 314;
+  document.getElementById('dial-fill').style.strokeDashoffset = circ * (1 - pct);
+  document.getElementById('dial-ml').textContent = state.water;
+  document.getElementById('dial-pct').textContent = Math.round(pct * 100) + '%';
+  document.getElementById('water-bar').style.width = Math.round(pct * 100) + '%';
+  document.getElementById('sum-water').textContent = state.water;
+}
+
+function addWater(ml) {
+  state.water += ml;
+  const now = new Date();
+  const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  state.waterLog.unshift({ time: timeStr, ml });
+  renderWaterLog();
+  updateDial();
+  showToast('toast-water', `+${ml}ML ADDED`);
+}
+
+function renderWaterLog() {
+  const el = document.getElementById('water-entries');
+  el.innerHTML = '';
+  state.waterLog.slice(0, 5).forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'water-entry';
+    div.innerHTML = `<span class="water-entry-time">${entry.time}</span><span class="water-entry-amt">+${entry.ml}ML</span>`;
+    el.appendChild(div);
+  });
+}
+
+/* ───────────────────────────────────────
+   TOAST
+─────────────────────────────────────── */
+function showToast(id, msg) {
+  const t = document.getElementById(id);
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ───────────────────────────────────────
+   CLOCK
+─────────────────────────────────────── */
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('watch-time').textContent = `${h}:${m}`;
+}
+
+/* ───────────────────────────────────────
+   SWIPE
+─────────────────────────────────────── */
+let touchStartX = 0;
+document.getElementById('watch').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+document.getElementById('watch').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 30) {
+    const next = state.screen + (dx < 0 ? 1 : -1);
+    if (next >= 0 && next < 3) goScreen(next);
+  }
+}, { passive: true });
+
+// Also click to cycle screens (for desktop demo)
+document.getElementById('watch').addEventListener('click', e => {
+  if (e.target.closest('.nav-dots, .meal-tab, .food-card, .water-btn, .log-btn, button')) return;
+  if (state.screen === 0) goScreen(1);
+});
+
+/* ───────────────────────────────────────
+   INIT
+─────────────────────────────────────── */
+initGaugeTicks();
+initDialTicks();
+renderFoodGrid('早餐');
+updateGauge();
+updateRings();
+updateBars();
+updateDial();
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+</body>
+</html>

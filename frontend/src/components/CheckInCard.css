@@ -1,0 +1,280 @@
+/* 1. 匯入所有指定字體 */
+
+
+:root {
+    --bg-beige: #C5BBAE;
+    --brand-orange: #E36A32;
+    --dark-charcoal: #483E3A;
+    --font-serif: var(--font-display);
+    --font-taipei: 'Permanent Marker', cursive;
+    --font-ref: 'Limelight', cursive;
+    --font-footer: 'Tenor Sans', sans-serif;
+}
+
+/* 2. 強制鎖定 9:16 比例容器 */
+.forced-container {
+    width: 100%;
+    max-width: 375px;
+    height: 667px;
+    background-color: var(--bg-beige);
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* --- 3. Header 部分 --- */
+.header-section {
+    padding: 25px 24px 5px;
+    flex-shrink: 0;
+}
+
+.morning-run {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    color: var(--brand-orange);
+    font-size: 1rem;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date-box {
+    border: 3px solid var(--brand-orange);
+    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+    padding: 4px 12px;
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #000;
+}
+
+.taipei-text {
+    font-family: var(--font-taipei);
+    font-size: 3.2rem;
+    line-height: 1;
+    transform: rotate(-2deg);
+    color: #000;
+}
+
+/* --- 4. 距離數據區與【強制修正箭頭】 --- */
+.distance-main {
+    position: relative;
+    margin-top: 10px;
+    text-align: center;
+    flex-shrink: 0;
+    z-index: 100;
+    overflow: visible;
+}
+
+.distance-val {
+    font-family: var(--font-serif);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 4.8rem;
+    display: inline-block;
+    /* 右移文字為左側箭頭留空間 */
+    transform: translateX(35px);
+    color: #000;
+}
+
+.unit-km {
+    font-family: var(--font-serif);
+    font-weight: 900;
+    color: var(--brand-orange);
+    font-size: 1.1rem;
+    margin-left: 5px;
+}
+
+/* 【全新重製】：確保不跑出框外，且永遠在數字左側 */
+.hand-drawn-arrow {
+    position: absolute;
+    /* 核心定位修正：以容器中心為基準往左推 */
+    left: 50%;
+    margin-left: -155px;
+    top: 50%;
+    width: 120px;
+    height: 80px;
+    transform: translateY(-50%) rotate(-5deg);
+    /* SVG 更新：渦旋手繪路徑 + 實心頭部 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' fill='none'%3E%3Cpath d='M15,35 C15,35 40,75 70,65 C100,55 90,25 120,35 C135,40 145,45 150,48' stroke='%23E36A32' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpolygon points='145,38 160,48 145,58' fill='%23E36A32'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    /* 強制渲染層級 */
+    display: block !important;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* --- 5. 地圖區 --- */
+.map-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+    margin-top: -10px;
+    position: relative;
+    z-index: 5;
+}
+
+.organic-map {
+    width: 255px;
+    height: 255px;
+    background: white;
+    position: relative;
+    border-radius: 40% 60% 50% 50% / 60% 45% 55% 40%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.map-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 285px;
+    height: 285px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300' fill='none'%3E%3Cpath d='M150,20 C190,25 220,55 245,90 C270,125 285,165 270,205 C255,245 220,275 180,290 C140,305 95,290 60,265 C25,240 10,200 5,160 C0,120 15,80 45,50 C75,20 110,15 150,20 Z' stroke='%23E36A32' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* --- 6. 配速區 --- */
+.pace-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.pace-val {
+    font-family: var(--font-serif);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 3.8rem;
+    line-height: 1;
+    color: #000;
+}
+
+.pace-unit {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    color: var(--brand-orange);
+    font-size: 0.95rem;
+    margin-left: 8px;
+}
+
+/* --- 7. 底部 Footer --- */
+.footer-snap {
+    background-color: var(--dark-charcoal);
+    height: 115px;
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    justify-items: center;
+    padding: 0 10px;
+    z-index: 30;
+}
+
+.footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* KCAL 與 DURATION 的數值樣式 */
+.footer-item span:first-child {
+    font-family: var(--font-serif);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 1.6rem;
+    color: #FFF;
+}
+
+.footer-label {
+    font-family: var(--font-footer);
+    font-weight: 700;
+    color: var(--brand-orange);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* ELEVATION 修正：數字與字體同步 */
+.elevation-up {
+    transform: translateY(-15px);
+}
+
+.elevation-num {
+    /* 【同步】：改為與 kcal 一樣的 Playfair Display 900 Italic */
+    font-family: var(--font-serif) !important;
+    font-weight: 900 !important;
+    font-style: italic !important;
+    font-size: 1.6rem;
+    color: #FFF;
+    margin-top: 12px;
+}
+
+.elevation-icon {
+    width: 65px;
+    height: 35px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 65 35' fill='none'%3E%3Cpath d='M3 28 L 18 15 L 28 22 L 45 5 L 62 18' stroke='%23E36A32' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M 40 10 L 45 5 L 50 10' stroke='%23E36A32' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+
+/* 側邊標記 */
+.ref-fixed {
+    position: absolute;
+    right: 12px;
+    bottom: 25px;
+    writing-mode: vertical-rl;
+    font-family: var(--font-ref);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* --- 下載按鈕 --- */
+.download-btn {
+    background-color: var(--brand-orange);
+    color: white;
+    padding: 12px 35px;
+    border-radius: 50px;
+    font-weight: 700;
+    margin: 25px auto 0;
+    display: block;
+    width: fit-content;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    box-shadow: 0 5px 20px rgba(227, 106, 50, 0.5);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 10000;
+    position: relative;
+    overflow: hidden;
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(227, 106, 50, 0.7);
+    background-color: #d15b24;
+}
+
+.download-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(227, 106, 50, 0.4);
+}
+
+.download-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+}

@@ -1,0 +1,193 @@
+/* 色票一律取自設計系統的七色（utils/colors.js）——
+   卡片是 Paper 暖面，壓在頁面的 Mist 冷底上：暖＝前景、冷＝退到後面的地。
+   原本卡片是 #fffdfa 近白、底色也是暖白，兩層同溫同值 → 整頁看起來是平的。 */
+.journey-dashboard { --journey-surface: #F6F4F1; --journey-line: rgba(207,198,184,0.7); --journey-muted: rgba(22,20,21,0.50); }
+.journey-dashboard__content { max-width: 960px; margin-inline: auto; }
+/* ⚠️ 這裡原本有一條把所有 .journey-tile / .journey-control-card 壓成
+   同一個底色的規則（還帶 backdrop-filter:none 與把 [aria-hidden] 的
+   鏡面高光層 display:none）。結果是：Tile 元件裡五種 Liquid Glass 材質
+   （霜白／珊瑚／墨黑／香檳／冷灰）與計畫管理卡的珠光面全部失效，
+   整頁每一張卡都是同一個顏色。材質現在各自由 Tile 的 glass 變體
+   與 styles/titanium-system.css 決定，這裡只留版面，不碰材質。 */
+.journey-dashboard .journey-tile { border-radius: 24px; }
+
+/* 墨黑玻璃卡：文字換成深底階梯（深底上的次要文字不低於 50%，才過 AA） */
+.journey-dashboard .journey-stat--dark,
+.journey-dashboard .journey-stat--dark .journey-stat-value { color: #F6F4F1; }
+.journey-dashboard .journey-stat--dark .journey-stat-heading,
+.journey-dashboard .journey-stat--dark .journey-stat-value small,
+.journey-dashboard .journey-stat--dark p { color: rgba(246,244,241,0.66); }
+.journey-dashboard [role=button]:focus-visible,
+.journey-dashboard button:focus-visible { outline: 2px solid #F95C4B; outline-offset: 3px; }
+.journey-action-card { flex-wrap: wrap; }
+.journey-action-card > div:nth-child(2) { min-width: 150px !important; }
+.journey-action-card > div:last-child:not(:nth-child(2)) { margin-left: auto; }
+.journey-control-card { margin-top: 8px; }
+.journey-module-status { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--journey-line); }
+.journey-module-status span { display: flex; gap: 6px; font-size: 11px; color: var(--journey-muted); }
+.journey-module-status strong { font-weight: 500; color: #161415; }
+.journey-summary { padding: 8px 16px 0; }
+.journey-section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 12px 2px; }
+.journey-section-heading h2 { font-size: 14px; font-weight: 700; margin: 0; }
+.journey-section-heading > span { color: var(--journey-muted); font-size: 11px; }
+.journey-section-heading--body { margin-top: 28px; }
+.journey-stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.journey-dashboard .journey-stat { padding: 20px !important; min-height: 180px; justify-content: flex-start !important; }
+.journey-stat-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: rgba(22,20,21,0.62); font-size: 12px; font-weight: 600; }
+.journey-stat-heading > span { display: inline-flex; align-items: center; gap: 8px; }
+.journey-stat-value { font-size: clamp(28px, 4vw, 38px); line-height: 1.15; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin-top: 20px; font-weight: 500; overflow-wrap: anywhere; }
+.journey-stat-value small, .journey-body-grid small { font-size: 12px; font-weight: 500; letter-spacing: 0; margin-left: 5px; color: var(--journey-muted); }
+.journey-stat p, .journey-muted { font-size: 11px; line-height: 1.6; color: var(--journey-muted); margin: 8px 0 0; }
+.journey-plan-progress { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px; border-top: 1px solid var(--journey-line); padding-top: 12px; margin-top: 16px; font-size: 11px; color: var(--journey-muted); }
+.journey-plan-progress strong { color: #161415; font-weight: 600; }
+/* .journey-data-notice 已移除 —— 「部分紀錄暫時無法載入」那行浮在三張卡上方，
+   既沒指出是哪一張卡讀不到，也不像可以點。改成由讀不到的那張卡自己出面。 */
+.journey-body-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 24px 0; }
+.journey-body-grid > div { text-align: center; padding: 0 8px; }
+.journey-body-grid > div + div { border-left: 1px solid var(--journey-line); }
+.journey-body-grid span { font-size: 12px; color: var(--journey-muted); }
+.journey-body-grid strong { display: block; margin-top: 8px; font-weight: 500; font-size: clamp(21px, 4vw, 30px); font-variant-numeric: tabular-nums; }
+.journey-body-grid p { font-size: 11px; color: var(--journey-muted); margin: 8px 0 0; }
+.journey-card-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-top: 1px solid var(--journey-line); padding-top: 14px; font-size: 11px; color: var(--journey-muted); }
+.journey-card-footer > span:last-child { display: inline-flex; align-items: center; gap: 6px; color: #161415; }
+@media (max-width: 600px) {
+    .journey-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .journey-stat--strength { grid-column: 1 / -1; }
+    .journey-dashboard .journey-stat { padding: 18px !important; min-height: 156px; }
+    .journey-body-card { padding: 18px 14px !important; }
+    .journey-action-card > div:last-child:not(:nth-child(2)) { padding: 11px 14px !important; }
+}
+.journey-action-icon { width: 44px; height: 44px; border-radius: 12px; background: #f7eae4; color: #ba4131; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.journey-task-title { font-size: 18px; line-height: 1.4; font-weight: 650; margin: 4px 0 10px; color: #161415; }
+.journey-action-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: 99px; color: #fff; background: #c74736; font-size: 12px; font-weight: 650; flex-shrink: 0; }
+/* ⚠️ 這裡原本有四條 !important，把進化日誌卡的深色拉絲鈦金屬底換成平的米白，
+   還用屬性選擇器把卡片裡「每一個」行內顏色強制改成同一個灰（#655f58）。
+   那張卡原生就是深色照片底配淺色字，被壓平之後又灰又糊，也沒有暗場可以發光。
+   材質交還給元件自己，這裡只留外距。 */
+.journey-dashboard .journey-history-card { margin-top: 24px; }
+@media (max-width: 380px) { .journey-action-link { margin-left: 58px; } }
+
+/* ══ 本週紀錄的三張卡 ══════════════════════════════════════════════
+   ⚠️ 這裡原本是一條 !important，把三張卡「全部」改成同一片近白玻璃。
+      後果不只是單調：墨黑卡（.journey-stat--dark）的深底也被蓋掉，
+      而它的文字是設計給深底用的淺色 —— 淺字貼在白底上，那張卡等於消失。
+   現在改成設計系統的分層法：相鄰卡片不可以同材質「又」同溫度。
+      ① 重訓 = 暖鈦金屬（拉絲照片）→ 被抬起來的前景
+      ② 跑步 = 墨黑深面（拉絲暗面）→ 整區的錨點
+      ③ 營養 = 冷霧面 Mist → 退到後面的地
+   三張卡 padding/圓角/陰影節奏一致，只有材質與溫度不同。 */
+.journey-dashboard .journey-stat {
+    border-radius: 24px;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+/* ① 重訓：Paper 暖面 ＋ 拉絲鈦金屬照片 */
+.journey-dashboard .journey-stat--strength {
+    background: linear-gradient(150deg, #FBFAF8 0%, #F2EEE7 42%, #E6DFD3 78%, #F4F0E8 100%);
+    border: 1px solid rgba(255,255,255,0.9);
+    box-shadow: 0 14px 30px -18px rgba(22,20,21,0.22), inset 0 2px 3px rgba(255,255,255,1), inset 0 -3px 7px rgba(22,20,21,0.05);
+}
+.journey-dashboard .journey-stat--strength::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(150deg, rgba(251,250,248,0.55) 0%, rgba(242,238,231,0.35) 50%, rgba(246,240,232,0.5) 100%);
+}
+.journey-dashboard .journey-stat--strength::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: url('/desktop/11.jpeg') center/cover;
+    /* 照片要看得見紋路，但色相必須留在 Paper 暖色：太濃會變成冷銀色。 */
+    opacity: 0.17; mix-blend-mode: luminosity;
+}
+/* ② 跑步：Deep Black 深面 ＋ 暗拉絲。整區唯一的深色錨點 */
+.journey-dashboard .journey-stat--dark {
+    background: linear-gradient(135deg, #2A2724 0%, #1B1917 38%, #100E0D 72%, #232020 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 18px 38px -20px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.12);
+}
+.journey-dashboard .journey-stat--dark::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: url('/desktop/22.jpeg') center/cover;
+    opacity: 0.85; mix-blend-mode: soft-light;
+}
+/* ③ 營養：Mist 冷中性 —— 全暖的一排就是靠這張卡破掉的 */
+.journey-dashboard .journey-stat--mist {
+    background: linear-gradient(150deg, #EDEEEB 0%, #E8E9E6 55%, #E1E3DF 100%);
+    border: 1px solid rgba(255,255,255,0.75);
+    box-shadow: 0 10px 24px -18px rgba(40,42,50,0.28), inset 0 2px 3px rgba(255,255,255,0.9);
+}
+.journey-dashboard .journey-stat > [aria-hidden],
+.journey-dashboard .journey-body-card > [aria-hidden] { opacity: 0.35; }
+
+/* 卡片內容要壓在材質層之上 */
+.journey-dashboard .journey-stat > *:not([aria-hidden]) { position: relative; z-index: 1; }
+
+/* 身體數據維持原本的霜白玻璃（它旁邊沒有同材質的鄰居，不需要拆） */
+.journey-dashboard .journey-body-card {
+    background: linear-gradient(145deg, rgb(255 255 255 / 44%), rgb(244 248 248 / 16%) 56%, rgb(255 255 255 / 30%)) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(125%) !important;
+    backdrop-filter: blur(12px) saturate(125%) !important;
+    border: 1px solid rgb(255 255 255 / 85%) !important;
+    box-shadow: inset 0 2px 2px rgb(255 255 255 / 95%), inset 2px 0 4px rgb(255 255 255 / 55%), inset -1px -3px 5px rgb(126 146 154 / 10%), 0 12px 22px -17px rgb(68 78 85 / 27%) !important;
+}
+
+/* ── 空狀態／讀不到：一張卡只講一件該做的事 ── */
+.journey-stat-empty { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 16px; }
+.journey-stat-empty__action { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; color: #161415; }
+.journey-dashboard .journey-stat--dark .journey-stat-empty__action { color: #F6F4F1; }
+.journey-stat-retry { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; background: transparent; color: #161415; border: 1px solid rgba(22,20,21,0.18); }
+/* 載入骨架：金屬微光，不是灰塊呼吸 */
+.journey-stat-skeleton { min-height: 180px; border-radius: 24px; }
+@media (max-width: 600px) {
+    .journey-stat-skeleton { min-height: 156px; }
+    .journey-stat-skeleton:first-child { grid-column: 1 / -1; }
+}
+.journey-body-grid p { min-height: 16px; }
+@media (prefers-reduced-transparency: reduce) {
+    .journey-dashboard .journey-stat, .journey-dashboard .journey-body-card {
+        background: #f6f4f1 !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+}
+
+/* ══ 今日訓練 Hero ══════════════════════════════════════════════════
+   整頁最重要的一張卡，之前是一片白底霜玻璃 —— 課程明明有封面照，
+   卻從來沒被用上。照片當底、暗罩壓上去讓字讀得到，
+   沒有封面時退回暗拉絲鈦金屬（22.jpeg），一樣是深色錨點不會變白卡。 */
+.journey-dashboard .journey-today-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 168px;
+    background-color: #161415;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 44px -22px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+/* 沒有封面照 → 暗拉絲金屬 */
+.journey-dashboard .journey-today-hero:not([style*="background-image"]) {
+    background-image: linear-gradient(135deg, #2A2724 0%, #1B1917 38%, #100E0D 72%, #232020 100%), url('/desktop/22.jpeg');
+    background-blend-mode: soft-light;
+}
+/* 暗罩：由下往上加深，底部那行小字才讀得到 */
+.journey-dashboard .journey-today-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* 兩層：左邊壓深給文字讀，底部再壓一道給頁尾那行小字。
+       右上角刻意留亮，照片要看得出來是照片 —— 壓太黑就等於沒放照片。 */
+    background:
+        linear-gradient(100deg, rgba(22,20,21,0.88) 0%, rgba(22,20,21,0.62) 38%, rgba(22,20,21,0.20) 68%, rgba(22,20,21,0.10) 100%),
+        linear-gradient(180deg, rgba(22,20,21,0) 38%, rgba(22,20,21,0.30) 72%, rgba(22,20,21,0.66) 100%);
+}
+.journey-dashboard .journey-today-hero > * { position: relative; z-index: 1; }
+/* 深底上的文字階梯（次要文字 ≥ 50% 才過 AA） */
+.journey-dashboard .journey-today-hero .journey-task-title { color: #F6F4F1; }
+.journey-dashboard .journey-today-hero .journey-stat-heading,
+.journey-dashboard .journey-today-hero .journey-card-footer,
+.journey-dashboard .journey-today-hero .journey-muted { color: rgba(246,244,241,0.72); }
+.journey-dashboard .journey-today-hero .journey-card-footer { border-top-color: rgba(246,244,241,0.18); }
+.journey-dashboard .journey-today-hero .journey-card-footer > span:last-child { color: #F6F4F1; }

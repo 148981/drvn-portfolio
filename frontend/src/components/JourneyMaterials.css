@@ -1,0 +1,157 @@
+/* Two deliberately different optical materials, confined to these entry cards. */
+.journey-pearl-glass,
+.journey-liquid-metal {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 28px;
+}
+.journey-material-content { position: relative; z-index: 2; }
+.journey-pearl-content { padding: 24px; }
+.journey-pearl-glass {
+    background:
+        radial-gradient(ellipse at 48% -60%, #ffffff 15%, transparent 70%),
+        linear-gradient(160deg, rgb(255 255 255 / 85%), rgb(234 241 244 / 58%) 54%, rgb(250 252 251 / 76%));
+    border: 1px solid rgb(255 255 255 / 95%);
+    -webkit-backdrop-filter: blur(20px) saturate(115%);
+    backdrop-filter: blur(20px) saturate(115%);
+    box-shadow:
+        inset 0 2px 3px #fff,
+        inset 3px 0 6px rgb(255 255 255 / 95%),
+        inset -2px -5px 9px rgb(164 186 194 / 20%),
+        inset 0 -1px 2px #fff,
+        0 3px 4px rgb(63 75 84 / 5%),
+        0 20px 32px -20px rgb(63 75 84 / 36%);
+}
+/* ── 珠光卡的虹彩 ──────────────────────────────────────────────
+   ⚠️ 原本是四團色斑（蜜桃／鵝黃／薄荷／天藍），錨在卡片下緣 115~130%、
+      半徑又小，所以只有每團的最上面一小片透得進來 —— 在這種寬而扁的卡上
+      四團互相糊成一片灰濁，看起來就是「底下有一層髒髒的顏色」。
+   改成 WWDC 那種做法：色相從暖到冷橫著鋪滿整個下緣（金→橘→珊瑚→粉→
+      紫→藍→青→綠），每一團都放大、羽化拉長，讓顏色是「暈開」而不是「攤平」，
+      再壓一層白光把中段提亮，才會有那種在白紙上發光的透明感。
+   顏色一律定義在這裡，元件不要自己調。 */
+:root {
+    --pearl-gold:   252, 206, 130;
+    --pearl-orange: 250, 168, 120;
+    --pearl-coral:  247, 141, 136;
+    --pearl-pink:   243, 152, 190;
+    --pearl-violet: 200, 152, 228;
+    --pearl-blue:   146, 172, 240;
+    --pearl-cyan:   150, 212, 236;
+    --pearl-green:  168, 216, 170;
+}
+.journey-pearl-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        /* 暖端（左）→ 冷端（右）。橢圓開得比卡片還寬，邊界才會化開 */
+        radial-gradient(70% 150% at 4% 118%,  rgba(var(--pearl-gold),   .62) 0%, rgba(var(--pearl-gold),   0) 68%),
+        radial-gradient(62% 150% at 19% 124%, rgba(var(--pearl-orange), .58) 0%, rgba(var(--pearl-orange), 0) 66%),
+        radial-gradient(60% 155% at 33% 120%, rgba(var(--pearl-coral),  .56) 0%, rgba(var(--pearl-coral),  0) 66%),
+        radial-gradient(58% 150% at 46% 126%, rgba(var(--pearl-pink),   .50) 0%, rgba(var(--pearl-pink),   0) 64%),
+        radial-gradient(58% 150% at 59% 120%, rgba(var(--pearl-violet), .50) 0%, rgba(var(--pearl-violet), 0) 64%),
+        radial-gradient(60% 155% at 72% 124%, rgba(var(--pearl-blue),   .52) 0%, rgba(var(--pearl-blue),   0) 66%),
+        radial-gradient(62% 150% at 85% 118%, rgba(var(--pearl-cyan),   .52) 0%, rgba(var(--pearl-cyan),   0) 66%),
+        radial-gradient(66% 150% at 99% 122%, rgba(var(--pearl-green),  .46) 0%, rgba(var(--pearl-green),  0) 68%);
+    filter: blur(6px) saturate(1.12);
+}
+/* 白光層：把中段提亮，顏色才是「透出來的」而不是「塗上去的」。
+   沒有這一層，八個色團會連成一條彩虹橫帶，很廉價。 */
+.journey-pearl-glass .journey-material-content::before {
+    content: '';
+    position: absolute;
+    inset: -24px -24px -40px;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(120% 90% at 50% -30%, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, .55) 52%, rgba(255, 255, 255, 0) 78%),
+        linear-gradient(180deg, rgba(255, 255, 255, .8) 0%, rgba(255, 255, 255, 0) 62%);
+}
+.journey-pearl-glass::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgb(255 255 255 / 70%);
+    border-radius: 25px;
+    box-shadow: inset 0 -4px 8px rgb(255 255 255 / 65%);
+    pointer-events: none;
+}
+.journey-pearl-glass .journey-module-status {
+    border-top: 0;
+    margin-top: 14px;
+    padding-top: 0;
+    gap: 8px 22px;
+}
+.journey-pearl-glass .journey-module-status span { color: #686b6e; }
+.journey-pearl-glass .journey-module-status strong { font-weight: 600; }
+.journey-pearl-arrow { box-shadow: inset 0 1px 2px rgb(255 255 255 / 55%), 0 4px 10px rgb(86 57 51 / 12%) !important; }
+
+.journey-liquid-metal {
+    border: 1px solid rgb(220 230 241 / 70%);
+    background: #242830;
+    box-shadow: inset 0 2px 2px rgb(255 255 255 / 85%), inset 1px 0 2px rgb(219 228 240 / 68%), inset 0 -3px 5px rgb(8 12 22 / 65%), 0 18px 30px -16px rgb(35 45 58 / 40%);
+}
+.journey-liquid-metal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, #25282e 0%, rgb(37 40 46 / 96%) 27%, rgb(37 40 46 / 15%) 65%, transparent),
+        radial-gradient(ellipse at 92% 140%, #fcffff 0%, #c6d5e6 26%, #73849b 35%, #222935 47%, transparent 58%),
+        linear-gradient(155deg, #151920 10%, #414853 31%, #edf5fc 43%, #aebccd 47%, #242932 58%, #11151b 72%, #bbcbdc 100%);
+}
+.journey-liquid-metal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 95% -30%, transparent 44%, rgb(130 221 255 / 75%) 45%, #637dce 46%, #b897d0 46.8%, #e8c88f 47.6%, #eef4d2 48.4%, #dcf4fd 49.4%, rgb(211 227 244 / 40%) 51%, transparent 54%);
+    opacity: 0.85;
+}
+.journey-metal-link { background: rgb(22 26 33 / 80%); border: 1px solid rgb(255 255 255 / 24%); border-radius: 99px; padding: 7px 10px; }
+.journey-liquid-metal .journey-material-content { padding: 24px; }
+@media (max-width: 480px) {
+    .journey-pearl-content, .journey-liquid-metal .journey-material-content { padding: 20px; }
+    .journey-pearl-glass .journey-module-status { gap: 8px 14px; }
+    .journey-liquid-metal::before { background: linear-gradient(90deg, #25282e 0%, rgb(37 40 46 / 94%) 45%, transparent 100%), linear-gradient(155deg, #262a32 20%, #dce8f5 47%, #333b49 58%, #8c9db2 100%); }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .journey-pearl-glass { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: #f4f7f7; }
+}
+
+/* Raised glass shell over the silver reflections. */
+.journey-liquid-metal {
+    background: rgb(38 45 55 / 72%);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
+    backdrop-filter: blur(16px) saturate(135%);
+    border-color: rgb(239 247 255 / 72%);
+    box-shadow: inset 0 2px 3px rgb(255 255 255 / 92%), inset 3px 0 5px rgb(230 242 255 / 40%), inset -2px -4px 7px rgb(6 15 26 / 45%), 0 4px 5px rgb(35 45 58 / 8%), 0 22px 32px -19px rgb(35 45 58 / 48%);
+}
+.journey-liquid-metal::before { opacity: 0.78; }
+.journey-liquid-metal::after { opacity: 0.65; }
+.journey-metal-rim {
+    position: absolute; inset: 4px; z-index: 3;
+    border-radius: 24px;
+    border: 1px solid rgb(237 247 255 / 27%);
+    box-shadow: inset 0 1px 5px rgb(255 255 255 / 18%), inset 0 -4px 8px rgb(214 233 255 / 16%);
+    pointer-events: none;
+}
+.journey-metal-watermark {
+    position: absolute; right: 7%; top: 38px;
+    width: clamp(145px, 28%, 250px); height: calc(100% - 44px);
+    object-fit: contain; z-index: 1;
+    opacity: 0.38; mix-blend-mode: screen;
+    filter: grayscale(0.7) drop-shadow(0 2px 1px rgb(255 255 255 / 28%)) drop-shadow(0 10px 8px rgb(5 14 24 / 38%));
+    pointer-events: none; user-select: none;
+}
+@media (max-width: 480px) {
+    .journey-metal-watermark { right: 10px; width: 140px; opacity: 0.25; }
+}
+@media (prefers-reduced-transparency: reduce) {
+    .journey-liquid-metal { background: #262d37; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

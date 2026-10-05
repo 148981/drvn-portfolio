@@ -1,0 +1,327 @@
+/* ============================================
+   Design Tokens - AI Fitness Coach
+   ============================================ */
+
+:root {
+    /* ═══════════════════════════════════════════════════════════════════
+       PAGE SHELL — 頁面呼吸空間的單一真相源（DRVN UIUX Definition §1.2）
+       ───────────────────────────────────────────────────────────────────
+       稽核發現：63 個一級頁面裡有 59% 完全沒有 safe-area 保護，
+       而 pt-* 用過 13 種不同的值（0,1,2,3,4,5,6,8,10,12,14,16,24）——
+       這就是「每頁呼吸感都不一樣」與「標題被 Dynamic Island 壓到」的根因。
+
+       Dynamic Island 的高度不是常數。任何手寫像素在
+       有瀏海／無瀏海／橫置 的裝置上必定有一種是錯的。
+
+       規則：頁面根層一律用 .page-shell 或 var(--page-top)，
+             禁止再手寫 pt-14 / padding-top: 56px。
+       ═══════════════════════════════════════════════════════════════════ */
+    --page-top:      calc(env(safe-area-inset-top, 0px) + 68px);
+    --page-top-tight: calc(env(safe-area-inset-top, 0px) + 44px);  /* 有返回列的內頁 */
+    --page-bottom:   calc(env(safe-area-inset-bottom, 0px) + 116px); /* 浮動 nav 高度 */
+    /* ⚠️ 別名：--nav-clearance 與 --page-bottom 是同一件事。
+       稽核發現：10 個檔案寫 var(--nav-clearance, 96px~150px)，但這個 token
+       從來沒有被定義過 —— 每頁都靜靜掉進自己的 fallback，所以 96px 的四頁
+       （課表總覽/分析選擇/姿勢驗證/大師旅程）底部其實被膠囊導航蓋住。
+       膠囊實測高度：py-2(16) + NavButton py-3(24) + icon 22 = 62px，
+       容器再墊 24px → 需要 86px 才不被蓋，116px 留了呼吸空間。
+       新頁面兩個名字都可以用，但值只有這一份。 */
+    --nav-clearance: var(--page-bottom);
+
+    --page-bottom-immersive: calc(env(safe-area-inset-bottom, 0px) + 24px); /* 無 nav 的沉浸頁 */
+    --page-gutter:   20px;   /* 左右永遠 20px，卡片不貼邊 */
+
+    /* 間距階梯（Definition §1.1）— 不在這把尺上的數值不准出現 */
+    --gap-2:  8px;
+    --gap-3:  12px;
+    --gap-4:  16px;   /* 卡片之間 */
+    --gap-5:  20px;
+    --gap-6:  24px;
+    --gap-8:  32px;   /* 區塊之間 = 卡片間距 × 2（節奏 2:1，Definition §1.3） */
+    --gap-10: 40px;
+    --gap-12: 48px;
+    --gap-16: 64px;
+
+    /* ===== Animation Duration Tokens ===== */
+    --duration-instant:  80ms;
+    --duration-fast:    160ms;
+    --duration-base:    280ms;
+    --duration-slow:    500ms;
+    --duration-story:  1200ms;
+
+    /* ===== Animation Easing Tokens ===== */
+    /* 只有三條曲線是規範內的（DRVN UIUX Definition §2.1）。
+       其餘保留只為舊 code 相容，新 code 一律用 house / spring / exit。 */
+    --ease-house:      cubic-bezier(0.16, 1, 0.3, 1);       /* ← 90% 的情況都用這條 */
+    --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);   /* 只給慶祝：PR／解鎖／完成 */
+    --ease-exit:       cubic-bezier(0, 0, 0.2, 1);          /* 退場 */
+
+    /* deprecated — 逐步汰除，不要在新 code 使用 */
+    --ease-out:        cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out:     cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-overshoot:  cubic-bezier(0.36, -0.4, 0.64, 1.4); /* 激進 overshoot */
+    --ease-decel:      cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* ===== Glow Shadow Tokens ===== */
+    --glow-gold:    0 0 12px rgba(212, 175, 106, 0.45);
+    --glow-coral:   0 0 12px rgba(249, 92, 75, 0.45);
+    --glow-cyan:    0 0 12px rgba(0, 255, 255, 0.30);
+    --glow-emerald: 0 0 10px rgba(16, 185, 129, 0.40);
+    --glow-white:   0 0 10px rgba(255, 255, 255, 0.20);
+
+    /* ===== Primary Brand Colors ===== */
+    --color-primary: #D4AF6A;
+    --color-primary-hover: #B89650;
+    --color-primary-light: rgba(212, 175, 106, 0.1);
+
+    /* ===== DRVN Swiss Editorial Palette (P2-3) =====
+       這些是實際散落於程式碼上千次的硬編碼色值，收斂為單一來源。
+       新程式請改用這些 token / brandColors（見 utils/colors.js），
+       舊程式可漸進替換。數值即現行設計實際使用色。 */
+    --drvn-ink:        #161415;  /* 主前景 / 深底（出現逾 1500 次） */
+    --drvn-coral:      #F95C4B;  /* 主強調色 coral（逾 680 次） */
+    --drvn-coral-deep: #D94030;  /* coral 加深，用於 hover / pressed */
+    --drvn-paper:      #F6F4F1;  /* 淺色頁面底（米白） */
+    --drvn-paper-2:    #E4DED2;  /* 次層米色 */
+    --drvn-sand:       #CFC6B8;  /* 沙色分隔 / 次要表面 */
+    --drvn-stone:      #262523;  /* 深灰卡片底 */
+    --drvn-stone-2:    #33302C;  /* 深灰次層 */
+    --drvn-cream:      #E0D8D3;  /* 淺色文字（深底上） */
+    --drvn-bronze:     #C68E5D;  /* 古銅點綴 */
+    --drvn-sage:       #8F9E8B;  /* 灰綠點綴 */
+    --drvn-clay:       #8B7F72;  /* 灰棕點綴 */
+    --drvn-gold-soft:  #D4C5A5;  /* 柔金 */
+    --drvn-white:      #FFFFFF;
+    --drvn-black-soft: #161415;  /* 近黑沉浸底 */
+
+    /* ===== Typography Family Tokens (P2-3) =====
+       Swiss editorial 風格靠字型紀律撐起。新程式請改用這兩個 token，
+       避免再散落 Georgia / Inter / DM Sans 等第三方字型造成風格分裂。 */
+    --font-display: 'Tenor Sans', 'Noto Sans TC', system-ui, sans-serif; /* Display／標題／kicker — 階層靠字級與字距 */
+    --font-serif:   'Noto Serif TC', Georgia, serif; /* 襯線情緒標題 — 僅限週報/月報封面 editorial 時刻 */
+    --font-body:    'Plus Jakarta Sans', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; /* 內文 / UI */
+    --font-mono:    'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace; /* 數字 / 數據讀數 — 一律 tabular */
+
+    /* ===== Semantic Colors ===== */
+    --color-success: #5A7A3A;
+    --color-success-light: rgba(90, 122, 58, 0.1);
+    --color-warning: #f59e0b;
+    --color-warning-light: rgba(245, 158, 11, 0.1);
+    --color-error: #ef4444;
+    --color-error-light: rgba(239, 68, 68, 0.1);
+    --color-info: #3b82f6;
+    --color-info-light: rgba(59, 130, 246, 0.1);
+
+    /* ===== Surface Colors ===== */
+    --surface-base: rgba(30, 30, 35, 0.9);
+    --surface-elevated: rgba(50, 50, 57, 0.9);
+    --surface-overlay: rgba(20, 20, 25, 0.95);
+
+    /* ===== Text Colors ===== */
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --text-disabled: rgba(255, 255, 255, 0.2);
+
+    /* ===== Border Colors ===== */
+    --border-light: rgba(255, 255, 255, 0.1);
+    --border-medium: rgba(255, 255, 255, 0.2);
+    --border-strong: rgba(255, 255, 255, 0.3);
+
+    /* ===== Spacing Scale ===== */
+    --space-1: 0.25rem;
+    /* 4px */
+    --space-2: 0.5rem;
+    /* 8px */
+    --space-3: 0.75rem;
+    /* 12px */
+    --space-4: 1rem;
+    /* 16px */
+    --space-5: 1.25rem;
+    /* 20px */
+    --space-6: 1.5rem;
+    /* 24px */
+    --space-8: 2rem;
+    /* 32px */
+    --space-10: 2.5rem;
+    /* 40px */
+    --space-12: 3rem;
+    /* 48px */
+    --space-16: 4rem;
+    /* 64px */
+
+    /* ===== Font Sizes ===== */
+    --text-xs: 0.75rem;
+    /* 12px */
+    --text-sm: 0.875rem;
+    /* 14px */
+    --text-base: 1rem;
+    /* 16px */
+    --text-lg: 1.125rem;
+    /* 18px */
+    --text-xl: 1.25rem;
+    /* 20px */
+    --text-2xl: 1.5rem;
+    /* 24px */
+    --text-3xl: 1.875rem;
+    /* 30px */
+    --text-4xl: 2.25rem;
+    /* 36px */
+    --text-5xl: 3rem;
+    /* 48px */
+    --text-6xl: 3.75rem;
+    /* 60px */
+
+    /* ===== Font Weights ===== */
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    --font-black: 900;
+
+    /* ===== Border Radius ===== */
+    --radius-sm: 0.375rem;
+    /* 6px */
+    --radius-md: 0.5rem;
+    /* 8px */
+    --radius-lg: 0.75rem;
+    /* 12px */
+    --radius-xl: 1rem;
+    /* 16px */
+    --radius-2xl: 1.5rem;
+    /* 24px */
+    --radius-3xl: 2rem;
+    /* 32px */
+    --radius-full: 9999px;
+
+    /* ===== DRVN 圓角尺度系統 (P2-3) =====
+       目前 borderRadius 散落 2/3/4/.../32 全頻譜。新程式請收斂到這六檔，
+       避免再出現任意像素值；舊程式漸進替換。 */
+    --drvn-radius-xs:   4px;   /* 小標籤 / chip */
+    --drvn-radius-sm:   8px;   /* 按鈕 / 輸入框 */
+    --drvn-radius-md:   14px;  /* 一般卡片 */
+    --drvn-radius-lg:   20px;  /* 大卡片 / 區塊 */
+    --drvn-radius-xl:   28px;  /* sheet / bento 容器 */
+    --drvn-radius-pill: 999px; /* 膠囊 / 圓形 */
+
+    /* ===== Shadows ===== */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+
+    /* ===== Z-Index Scale ===== */
+    --z-base: 0;
+    --z-dropdown: 1000;
+    --z-sticky: 1100;
+    --z-fixed: 1200;
+    --z-modal-backdrop: 1300;
+    --z-modal: 1400;
+    --z-popover: 1500;
+    --z-tooltip: 1600;
+
+    /* ===== Transitions ===== */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Utility Classes ===== */
+.glass-surface {
+    background: var(--surface-base);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-light);
+}
+
+.glass-surface-elevated {
+    background: var(--surface-elevated);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-medium);
+}
+
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+/* ============================================
+   DRVN 收斂規範 (P2-3) — 給新程式 / code review 參考
+   --------------------------------------------
+   色彩：
+     主前景 / 深底  → #161415  (var(--drvn-ink))         勿用 #1B1B1B 等近似值
+     主強調 coral   → #F95C4B  (var(--drvn-coral))        勿新增 #FF6B35 / #FF7E6B
+     深色卡層次     → #262523 stone / #1A1A1A black-soft  （刻意層次，非錯誤，勿合併）
+   字型：
+     襯線大標題     → var(--font-display)                 勿散落 Georgia / Inter
+     內文 / UI      → var(--font-body)
+   圓角：收斂到 --drvn-radius-xs/sm/md/lg/xl/pill 六檔，勿用任意像素值。
+
+   ⚠️ 注意：以下情境的近似色「不是」錯誤，請勿正規化——
+     · 漸層多停點（如 titaniumCoral：#FF7A6B→#F95C4B→#D94030）
+     · 地圖路線色（RouteMap）
+     · SmartTrainerModeMobile 的獨立深色主題（#09090B / #27272A …）
+     · MetabolicArc 自成一格的橘/藍雙環配色
+   ============================================ */
+
+.font-display { font-family: var(--font-display); }
+.font-body    { font-family: var(--font-body); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PAGE SHELL utilities — DRVN UIUX Definition §1.2 / §1.5
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* 一級頁面的標準外殼：safe-area 感知的上下留白 + 固定 20px 側邊溝 */
+.page-shell {
+    padding-top: var(--page-top);
+    padding-bottom: var(--page-bottom);
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+    min-height: 100dvh;              /* dvh：iOS 網址列伸縮時高度不跳動 */
+    box-sizing: border-box;
+}
+
+/* 有自己返回列的內頁 —— 上緣不需要留完整 68px */
+.page-shell--tight { padding-top: var(--page-top-tight); }
+
+/* 沉浸頁（訓練中／AR／結算）—— 沒有底部導航，不必留 116px */
+.page-shell--immersive { padding-bottom: var(--page-bottom-immersive); }
+
+/* 只要上緣安全區，不動左右（給已經自己處理側邊的舊頁面漸進遷移用） */
+.page-top-safe { padding-top: var(--page-top); }
+.page-top-safe--tight { padding-top: var(--page-top-tight); }
+.page-bottom-safe { padding-bottom: var(--page-bottom); }
+
+/* 節奏 2:1（Definition §1.3）：區塊間距是卡片間距的兩倍 */
+.stack-cards > * + * { margin-top: var(--gap-4); }   /* 16px — 同一組的卡片 */
+.stack-blocks > * + * { margin-top: var(--gap-8); }  /* 32px — 不同區塊 */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — Definition §2.5（這是可及性，不是加分項）
+   稽核發現 63 頁裡只有 2 頁做了處理。這裡一次補上全站底線；
+   Framer Motion 端由 App.jsx 的 <MotionConfig reducedMotion="user"> 負責。
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    /* 裝飾性的無限動畫直接關掉，而不是加速播放 */
+    .ti-skeleton,
+    .ti-ambient--live,
+    .ti-sheen,
+    .drvn-loader__scan,
+    .drvn-loader__dot {
+        animation: none !important;
+    }
+}

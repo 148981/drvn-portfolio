@@ -1,0 +1,125 @@
+/* ============================================================
+   BENTO GRID  ·  DRVN layout system
+   Swiss editorial · varied-size tiles · layered materiality
+   ------------------------------------------------------------
+   The bento box is DRVN's DEFAULT page layout: a tight grid of
+   different-sized tiles that lets one screen carry a hero metric,
+   several supporting stats, a chart, and a CTA without feeling
+   like a flat list. The grid is only the skeleton — the layering
+   comes from giving neighbouring tiles DIFFERENT materials
+   (Titanium / Liquid Glass / Paper) and one Coral focal tile, so
+   no screen reads as a single tone or a single surface.
+
+   Mobile-first: a 4-column micro-grid inside the 440px frame.
+   Tiles span columns/rows to create the bento rhythm. Use the
+   span helpers; don't hand-roll grid-column on every tile.
+   ============================================================ */
+
+:root {
+    --bento-gap:        12px;   /* matches --space-3 */
+    --bento-gap-tight:  8px;    /* dense stat clusters */
+    --bento-cols:       4;      /* micro-grid columns (mobile) */
+    --bento-row:        minmax(84px, auto);
+}
+
+/* --- The grid container --- */
+.bento {
+    display: grid;
+    grid-template-columns: repeat(var(--bento-cols), 1fr);
+    grid-auto-rows: var(--bento-row);
+    gap: var(--bento-gap);
+    width: 100%;
+}
+
+.bento--tight { gap: var(--bento-gap-tight); }
+
+/* Optional masonry-ish dense packing so small tiles backfill gaps. */
+.bento--dense { grid-auto-flow: row dense; }
+
+/* ============================================================
+   TILE SPANS
+   Combine a column span with a row span to size a tile.
+   On the 4-col mobile grid:
+     span-2  = half width    · span-4 = full width
+     span-3  = three-quarter (pairs nicely with a span-1 sidekick)
+   ============================================================ */
+.bento-tile        { grid-column: span 2; grid-row: span 1; min-width: 0; }
+.bento-tile--w1    { grid-column: span 1; }
+.bento-tile--w2    { grid-column: span 2; }
+.bento-tile--w3    { grid-column: span 3; }
+.bento-tile--full  { grid-column: 1 / -1; }
+.bento-tile--h1    { grid-row: span 1; }
+.bento-tile--h2    { grid-row: span 2; }
+.bento-tile--h3    { grid-row: span 3; }
+
+/* Hero tile: the screen's anchor — large, usually the dark slab
+   or the one Coral focal surface. Give it height to dominate. */
+.bento-tile--hero  { grid-column: 1 / -1; grid-row: span 2; }
+
+/* ============================================================
+   TILE INTERIOR
+   A tile is just a container; drop a material class on it
+   (.ti-surface / .lg-glass / .ms-card / .ti-surface-coral …).
+   This rule only handles padding, radius and content layout so
+   every material sits consistently inside the bento rhythm.
+   ============================================================ */
+.bento-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 20px;          /* sits in the 18–28px house range */
+    overflow: hidden;             /* clip sheens / glass highlights */
+    isolation: isolate;
+}
+
+.bento-tile--pad-sm { padding: 12px; }
+.bento-tile--pad-lg { padding: 20px; }
+
+/* A quiet label-over-metric stack, the most common tile content. */
+.bento-tile__kicker {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+.bento-tile__metric {
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+}
+
+/* Entrance: reuse the house "rise"; stagger via inline delay. */
+.bento-tile {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: bento-rise 0.6s var(--ti-ease, cubic-bezier(0.16, 1, 0.3, 1)) forwards;
+}
+@keyframes bento-rise {
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bento-tile { animation: none; opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   LAYERING GUARD (the anti-monotony rule, encoded as a hint)
+   Tag the grid with the materials in play so reviewers can see
+   at a glance whether a screen mixes surfaces. Purely advisory:
+   if every child shares one material class, the screen is too
+   flat — swap a couple of tiles to a different material and give
+   exactly one the Coral treatment.
+   ============================================================ */
+/* Example intent (not enforced by CSS):
+   <div class="bento">
+     <div class="bento-tile bento-tile--hero ti-surface-dark"> … </div>
+     <div class="bento-tile lg-glass--frost"> … </div>
+     <div class="bento-tile ti-surface"> … </div>
+     <div class="bento-tile--w1 bento-tile ms-card"> … </div>
+     <div class="bento-tile--w1 bento-tile ti-surface-coral"> CTA </div>
+   </div>
+   → four materials + one Coral focal = layered, not monotone. */

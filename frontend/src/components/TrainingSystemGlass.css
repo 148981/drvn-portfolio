@@ -1,0 +1,77 @@
+/* Scoped material shared by the training overview and home date capsules. */
+.training-system-glass {
+  --system-ink: #241f20;
+  --system-muted: #625953;
+  --system-action: #b83629;
+  --system-track: rgba(50,40,35,.12);
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(255,255,255,.78);
+  background: linear-gradient(145deg,rgba(255,255,255,.65),rgba(255,255,255,.13) 48%,rgba(255,255,255,.36)), var(--system-tint);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  box-shadow: inset 0 1px 1px #fff, inset 1px 0 2px rgba(255,255,255,.7), inset 0 -2px 3px rgba(65,49,39,.1), 0 12px 28px -18px rgba(49,39,34,.38);
+}
+.training-system-glass--strength { --system-tint: rgba(249,92,75,.25); }
+.training-system-glass--nutrition { --system-tint: rgba(207,198,184,.36); --system-action: #655b4e; }
+.training-system-glass--run {
+  --system-tint: rgba(22,24,28,.87);
+  --system-ink: #fff;
+  --system-muted: #e0dfe0;
+  --system-action: #ffb0a4;
+  --system-track: rgba(255,255,255,.2);
+  background: linear-gradient(145deg,rgba(255,255,255,.24),transparent 48%,rgba(255,255,255,.12)),var(--system-tint);
+  border-color: rgba(255,255,255,.48);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.65),inset 0 -2px 3px rgba(0,0,0,.25),0 12px 28px -18px rgba(22,24,28,.5);
+}
+/* 這一項該去回饋了 —— 整張卡呼吸紅邊。
+   ⚠️ 只給一條靜態細框是不夠的：三張卡並排時它完全不跳，使用者會一路忽略，
+      直到下一季自己被動開始（這就是當初把清單列改成卡片的原因）。
+   ⚠️ 用 ::after 畫環，不動 .training-system-glass 自己的 box-shadow ——
+      那是這張卡的玻璃材質，覆寫掉會整個變平。
+   ⚠️ 一次只會有一張在呼吸；全部都在閃就等於沒有重點。 */
+.training-system-glass.is-due {
+  outline: 1px solid rgba(var(--system-due-rgb, 217,64,48), .3);
+  outline-offset: -2px;
+}
+.training-system-glass.is-due::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1.5px solid rgba(var(--system-due-rgb, 217,64,48), .9);
+  animation: trainingSystemDueBreath 2.6s ease-in-out infinite;
+}
+/* 跑步卡是深色底，暗紅在上面看不出來，換亮一階的珊瑚 */
+.training-system-glass--run { --system-due-rgb: 255,138,120; }
+
+@keyframes trainingSystemDueBreath {
+  0%, 100% { opacity: .38; box-shadow: 0 0 0 0 rgba(var(--system-due-rgb, 217,64,48), 0); }
+  50%      { opacity: 1;   box-shadow: 0 0 0 4px rgba(var(--system-due-rgb, 217,64,48), .12),
+                                       0 0 18px rgba(var(--system-due-rgb, 217,64,48), .30); }
+}
+
+/* 會呼吸的東西對前庭敏感的人是負擔 —— 一定要能關掉，關掉之後改用實線標記 */
+@media (prefers-reduced-motion: reduce) {
+  .training-system-glass.is-due::after {
+    animation: none;
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(var(--system-due-rgb, 217,64,48), .12);
+  }
+}
+.home-week-glass-row { display:flex; justify-content:space-between; gap:6px; }
+.home-week-glass-button { flex:1 1 0; min-width:0; max-width:52px; border:0; padding:0; background:transparent; border-radius:999px; cursor:pointer; }
+.home-week-glass-pill {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  width:100%; height:82px; border-radius:999px;
+  background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,255,255,.13) 55%,rgba(255,255,255,.33));
+  border:1px solid rgba(255,255,255,.8);
+  backdrop-filter:blur(12px) saturate(140%); -webkit-backdrop-filter:blur(12px) saturate(140%);
+  box-shadow:inset 0 2px 2px rgba(255,255,255,.9),inset 0 -2px 3px rgba(130,91,62,.12),0 8px 16px -10px rgba(88,48,32,.3);
+}
+.home-week-glass-pill.is-today { background:linear-gradient(145deg,rgba(255,228,219,.83),rgba(249,92,75,.65) 60%,rgba(255,186,158,.78)); border-color:rgba(255,255,255,.9); }
+.home-week-glass-button:focus-visible { outline:2px solid #b83629; outline-offset:4px; }
+@media (prefers-reduced-transparency: reduce) {
+  .training-system-glass,.home-week-glass-pill { backdrop-filter:none; -webkit-backdrop-filter:none; }
+}

@@ -1,0 +1,303 @@
+:root {
+    /* --- 參考圖配色系統 (Updated to Saturated Figure 3) --- */
+    --bg-color: #F6F4F1;
+    --card-dark: #161415;
+    --card-salmon: #FF8A65;
+    /* Saturated Coral/Orange */
+    --card-yellow: #FFD54F;
+    /* Saturated Gold/Yellow */
+    --card-green: #AED581;
+    /* Saturated Lime */
+    --card-lavender: #90CAF9;
+    /* Saturated Light Blue */
+
+    --text-primary: #161415;
+    --text-secondary: #8A7E73;
+    --text-on-dark: #FFFFFF;
+
+    /* --- 圓角與間距 --- */
+    --radius-xl: 36px;
+    --radius-lg: 28px;
+    --radius-md: 20px;
+    --spacing-base: 20px;
+}
+
+/* 1. Distance - Saturated Lime */
+.stat-card:nth-child(1) {
+    background-color: #AED581;
+    /* Saturated Lime */
+}
+
+.stat-card:nth-child(1) .stat-value {
+    color: #33691E;
+}
+
+/* Dark Green Text */
+
+/* 2. Duration - Saturated Blue/Lavender */
+.stat-card:nth-child(2) {
+    background-color: #90CAF9;
+    /* Saturated Blue */
+}
+
+.stat-card:nth-child(2) .stat-value {
+    color: #0D47A1;
+}
+
+/* Dark Blue Text */
+
+/* 3. Pace - Saturated Purple */
+.stat-card:nth-child(3) {
+    background-color: #CE93D8;
+    /* Saturated Purple */
+}
+
+.stat-card:nth-child(3) .stat-value {
+    color: #4A148C;
+}
+
+/* Dark Purple Text */
+
+/* 4. Calories - Saturated Orange */
+.stat-card:nth-child(4) {
+    background-color: #FFAB91;
+    /* Saturated Coral */
+}
+
+.stat-card:nth-child(4) .stat-value {
+    color: #BF360C;
+}
+
+/* Deep Orange Text */
+
+/* 1. 全局設定：重置背景與字體 */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    /* 改用乾淨無襯線字體 */
+    margin: 0;
+    /* padding: var(--spacing-base); */
+    /* Disabled body padding to avoid layout issues in spa */
+    line-height: 1.5;
+}
+
+/* 移除原本的手寫字體，標題改為現代風格 */
+h1,
+h2,
+h3,
+.title-text {
+    font-family: sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    /* 稍微縮緊字距讓標題更紮實 */
+    margin-bottom: 12px;
+}
+
+/* 2. 頂部導航 (Community / Challenges) */
+/* 將原本的按鈕群組改成懸浮膠囊樣式 */
+.top-nav-container {
+    background: #FFFFFF;
+    border-radius: 50px;
+    padding: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.nav-item {
+    border-radius: 36px;
+    padding: 10px 24px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    background-color: var(--card-yellow);
+    color: var(--text-primary);
+    box-shadow: 0 2px 10px rgba(253, 232, 136, 0.4);
+}
+
+/* 3. 主要卡片區 (Featured & Core Series) */
+.featured-card {
+    background-color: var(--card-salmon);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: var(--text-primary);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    /* 加上細微的內部光澤感 */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    height: 100%;
+}
+
+.core-series-card {
+    background-color: var(--card-yellow);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    color: var(--text-primary);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* 圓形按鈕優化 */
+.action-button {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+}
+
+/* 4. 地圖區塊 (Night Shift) */
+/* 讓地圖看起來像一張貼在牆上的圓角相片 */
+.map-section-title {
+    font-size: 28px;
+    color: var(--text-primary);
+    margin-top: 40px;
+    margin-bottom: 16px;
+    font-weight: 800;
+    /* 移除原本雜亂的手寫感，改用粗黑體 */
+    text-transform: uppercase;
+}
+
+.map-container {
+    border-radius: var(--radius-xl) !important;
+    /* Force override */
+    overflow: hidden;
+    border: 4px solid #FFFFFF;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    height: 320px;
+    margin-top: 10px;
+}
+
+/* 5. 數據儀表板 (Distance, Pace, Calories) */
+/* 參考參考圖左側的深色卡片風格 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* Base Stat Card - will be overridden by specific colors */
+.stat-card {
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    color: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    height: 110px;
+    box-shadow: none;
+    /* Flat look for colored cards or subtle */
+    border: none;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    font-weight: 800;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    font-family: sans-serif;
+    color: #111;
+    line-height: 1;
+}
+
+/* 1. Distance - Salmon (Plan for The Day) */
+.stat-card:nth-child(1) {
+    background-color: #FF9F7F;
+}
+
+.stat-card:nth-child(1) .stat-value {
+    color: #161415;
+}
+
+.stat-card:nth-child(1) .stat-label {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* 2. Duration - Yellow (Image Notes) */
+.stat-card:nth-child(2) {
+    background-color: #FCE988;
+}
+
+.stat-card:nth-child(2) .stat-value {
+    color: #161415;
+}
+
+.stat-card:nth-child(2) .stat-label {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* 3. Pace - Cream (My Lectures) */
+.stat-card:nth-child(3) {
+    background-color: #F6F4F1;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Subtle border for cream on cream */
+}
+
+.stat-card:nth-child(3) .stat-value {
+    color: #161415;
+}
+
+.stat-card:nth-child(3) .stat-label {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* 4. Calories - Light Green (List of...) */
+.stat-card:nth-child(4) {
+    background-color: #D4E1A5;
+}
+
+.stat-card:nth-child(4) .stat-value {
+    color: #161415;
+}
+
+.stat-card:nth-child(4) .stat-label {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* 6. 底部互動區 (Like/Comment) */
+.interaction-bar {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-left: 8px;
+}
+
+.heart-icon {
+    color: var(--card-salmon);
+}
+
+.comment-icon {
+    color: var(--text-primary);
+}

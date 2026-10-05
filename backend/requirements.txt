@@ -1,0 +1,47 @@
+# ============================================================
+# DRVN 後端相依（已釘版以利可重現的部署 / Docker build）
+# Web / 安全 / DB 核心釘到目前實測可用版本；ML 視覺套件保留彈性，
+# 讓 pip 依平台(arm64 / amd64)解析對應 wheel，避免跨平台安裝失敗。
+# ============================================================
+
+# ── Web 框架 / 伺服器 ──────────────────────────────────────
+fastapi==0.128.8
+uvicorn[standard]==0.39.0
+starlette==0.49.3
+python-multipart
+
+# ── 認證 / 安全 ────────────────────────────────────────────
+authlib==1.6.9
+python-jose[cryptography]==3.5.0
+cryptography>=42         # App 內購：驗 Apple 簽章憑證鏈（core/apple_iap.py）
+bcrypt>=4.0
+passlib[argon2]>=1.7.4      # 密碼雜湊：Argon2id（向後相容 bcrypt）
+slowapi>=0.1.9              # 敏感端點 rate limiting（擋暴力破解）
+itsdangerous
+python-dotenv
+httpx==0.28.1
+
+# ── 資料庫 ────────────────────────────────────────────────
+sqlalchemy>=2.0
+psycopg[binary]>=3.1   # PostgreSQL 驅動（DATABASE_URL=postgresql+psycopg://...）
+
+# ── 資料 / 科學運算 ───────────────────────────────────────
+numpy==2.0.2
+pandas==2.3.3
+scipy==1.13.1
+fastdtw
+tslearn
+matplotlib
+
+# ── 電腦視覺 / 姿勢偵測（保留彈性版本，依平台解析 wheel）──
+mediapipe
+opencv-python
+
+# ── 其他執行期相依（程式有 import，先前漏列，補齊以免啟動崩潰）──
+requests>=2.31
+pillow>=10.0          # 程式以 PIL import
+beautifulsoup4>=4.12  # 程式以 bs4 import
+lxml>=5.0             # bs4 解析器後端
+python-dateutil>=2.8  # 程式以 dateutil import
+pytz>=2024.1
+deep-translator>=1.11 # core/nutrition_db.py 以 deep_translator import

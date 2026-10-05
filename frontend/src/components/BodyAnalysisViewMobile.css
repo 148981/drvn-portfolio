@@ -1,0 +1,182 @@
+.body-analysis-header { display:flex; align-items:center; gap:12px; padding: max(20px, env(safe-area-inset-top)) 20px 20px; position:relative; z-index:1; }
+.body-analysis-header h1 { margin:0; flex:1; font-size:24px; font-weight:600; letter-spacing:-.03em; }
+.body-analysis-header button { min-height:44px; min-width:44px; display:inline-flex; align-items:center; justify-content:center; gap:5px; border:0; background:transparent; cursor:pointer; }
+.body-analysis-header .body-analysis-add { font-size:12px; color:#b43c2c; }
+.body-analysis-tabs > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.body-analysis-tabs button { padding:12px 4px; font-size:13px; }
+.body-history-summary { width:100%; padding:20px 16px; background:rgba(255,255,255,.6); border:1px solid #fff; border-radius:24px; margin-bottom:24px; }
+.body-history-value > span { font-size:13px; color:#67615b; }
+.body-history-value strong { display:block; font-size:42px; font-weight:500; font-variant-numeric:tabular-nums; line-height:1.3; }
+.body-history-value small { margin-left:6px; font-size:14px; color:#67615b; }
+.body-history-meta { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:11px; color:#67615b; }
+/* 捲動容器底部要讓開底部導覽列＋安全區（介面標準 §1.1）。
+   原本只有 Tailwind 的 pb-20，iPhone 有 home indicator 的機型最後一張卡會被蓋住。 */
+.body-analysis-scroll { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.body-analysis-page button:focus-visible { outline:2px solid #c74736; outline-offset:2px; }
+.body-analysis-page [class*="rounded-[36px]"] { border-radius:24px; }
+.body-analysis-page .p-8, .body-analysis-page .p-7 { padding:20px; }
+@media (prefers-reduced-motion: reduce) { .body-analysis-page .animate-pulse { animation:none; } }
+.body-analysis-details { width:100%; margin-bottom:24px; }
+.body-analysis-details > summary { cursor:pointer; padding:14px 4px; font-size:13px; font-weight:600; color:#655f58; }
+
+/* ══ 歷史分頁 ══════════════════════════════════════════════════════
+   這一區原本的問題是「珊瑚太多、深色物件亂入」：分頁膠囊、指標膠囊、
+   折線、＋新增量測、底部相機鍵全是珊瑚；而量測紀錄的日期篩選卻是一顆
+   墨黑膠囊浮在暖白頁面上。現在整頁的珊瑚只留給折線本身，其餘收成
+   墨黑／中性，深色只出現在該出現的地方。 */
+
+/* 趨勢卡 */
+.body-history-summary { position: relative; }
+.body-history-value strong { letter-spacing: -.03em; }
+.body-history-meta { margin-top: 4px; line-height: 1.7; }
+
+/* 不到兩筆量測時取代折線的動作列（介面標準 §5） */
+.body-history-cta {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    width: 100%; margin-top: 18px; padding: 16px 18px;
+    border: 1px dashed rgba(22, 20, 21, .18); border-radius: 18px;
+    background: rgba(22, 20, 21, .02); cursor: pointer; min-height: 56px;
+    font-size: 15px; font-weight: 700; color: #161415; text-align: left;
+}
+
+/* 挑日期 —— 安靜的一列，不是一顆黑膠囊 */
+.body-history-filter {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; min-height: 52px; padding: 0 16px;
+    border: 1px solid rgba(22, 20, 21, .1); border-radius: 18px;
+    background: rgba(255, 255, 255, .6); cursor: pointer;
+}
+.body-history-filter:focus-within { border-color: rgba(249, 92, 75, .5); }
+.body-history-filter__label { font-size: 13px; font-weight: 700; color: rgba(22, 20, 21, .45); flex-shrink: 0; }
+.body-history-filter__input {
+    flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
+    font-size: 15px; font-weight: 700; color: #161415; font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+.body-history-filter__clear {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin-right: -10px; flex-shrink: 0;
+    border: 0; background: transparent; color: rgba(22, 20, 21, .4); cursor: pointer;
+}
+
+/* 紀錄卡：Paper 暖面。Pebble(#CFC6B8) 是分隔線的顏色，拿來當整張卡的底
+   會讓紀錄看起來比趨勢卡還重，而它只是清單。 */
+.body-record-card {
+    background: linear-gradient(150deg, #FBFAF8 0%, #F4F1EB 55%, #EFEAE1 100%);
+    border: 1px solid rgba(255, 255, 255, .85);
+    box-shadow: 0 10px 24px -18px rgba(22, 20, 21, .25), inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+
+/* 更多身體指標：像一個可以點的收合列，不是一個裸的 ▶ */
+.body-analysis-details > summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    min-height: 52px; padding: 0 16px; list-style: none;
+    border: 1px solid rgba(22, 20, 21, .08); border-radius: 18px;
+    background: rgba(255, 255, 255, .5);
+    font-size: 15px; font-weight: 700; color: #161415;
+}
+.body-analysis-details > summary::-webkit-details-marker { display: none; }
+.body-analysis-details > summary svg { color: rgba(22, 20, 21, .35); transition: transform .28s cubic-bezier(.16, 1, .3, 1); }
+.body-analysis-details[open] > summary svg { transform: rotate(180deg); }
+.body-analysis-details[open] > summary { margin-bottom: 16px; }
+@media (prefers-reduced-motion: reduce) { .body-analysis-details > summary svg { transition: none; } }
+
+/* ══ 更多身體指標的四張卡 ══════════════════════════════════════════
+   原本四張卡各長各的：圓角 36、內距 28、shadow-2xl ＋ 0 20px 40px 的純黑
+   投影（四片浮板）；小標一律英文大寫字距（C·I·D Shape Analysis／
+   FFMI · Fat-Free Mass Index／ECW/TBW · Recovery Status）；數字有三種
+   寫法（斜體黑體 5xl 帶投影／font-[1000] 12px／Tenor Sans 斜體）；
+   連三列小表裡中間那列都是英文 MUSCLE。
+   現在四張卡共用這一組規格，深度交還給材質，不靠投影。 */
+.body-metric-card {
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+    border-radius: 28px;
+    cursor: pointer;
+}
+/* 拉絲紋理：用專案自己的照片，不去第三方網站抓 */
+.body-metric-card__grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: url('/desktop/11.jpeg') center/cover;
+    opacity: .14;
+    mix-blend-mode: luminosity;
+}
+.body-metric-card > *:not(.body-metric-card__grain) { position: relative; z-index: 1; }
+
+/* 一張卡三層：標題（這是什麼）→ 主角（結論）→ 佐證（一行數字）。
+   ⚠️ 原本一張卡上有七段文字，真正的答案（「強壯型」）還躺在最下面。 */
+.body-metric-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.body-metric-card__title { font-size: 13px; font-weight: 700; color: rgba(22, 20, 21, .5); margin: 0; }
+/* 「?」—— 這張卡點得開，沒有這個記號沒人知道 */
+.body-metric-card__help {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 99px; flex-shrink: 0;
+    background: rgba(22, 20, 21, .06); color: rgba(22, 20, 21, .45);
+    font-size: 13px; font-weight: 700; line-height: 1;
+}
+/* 主角：結論用講的，數字掛在旁邊 */
+.body-metric-card__verdict {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    margin: 12px 0 0; font-size: 24px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+}
+.body-metric-card__verdict-num {
+    font-size: 30px; font-weight: 300; letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+}
+/* 佐證：一行就好 */
+.body-metric-card__facts {
+    margin: 12px 0 0; font-size: 13px; font-weight: 600;
+    color: rgba(22, 20, 21, .5); font-variant-numeric: tabular-nums;
+}
+/* 空狀態的動作卡 */
+.body-metric-card--action {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; text-align: left; min-height: 84px;
+}
+.body-metric-card--action .body-metric-card__verdict { margin: 0; }
+
+/* 三段量尺：現在在哪，一眼看得到 —— 不用再讀文字 */
+.body-scale { display: flex; gap: 4px; margin-top: 14px; }
+.body-scale__seg {
+    flex: 1; text-align: center; padding: 7px 4px; border-radius: 10px;
+    background: rgba(22, 20, 21, .05); color: rgba(22, 20, 21, .38);
+    font-size: 12px; font-weight: 600;
+}
+.body-scale__seg.is-on { color: #fff; font-weight: 700; }
+
+/* 進度軌：實心＝現在，虛線＝目標（同一個視覺物件上同時可見） */
+.body-track {
+    position: relative; height: 10px; margin-top: 14px;
+    border-radius: 99px; background: rgba(22, 20, 21, .08); overflow: hidden;
+}
+.body-track__fill { position: absolute; inset: 0 auto 0 0; border-radius: 99px; transition: width .6s cubic-bezier(.16, 1, .3, 1); }
+.body-track__goal { position: absolute; top: 0; bottom: 0; width: 2px; background: rgba(22, 20, 21, .35); }
+@media (prefers-reduced-motion: reduce) { .body-track__fill { transition: none; } }
+
+/* 主角數字：一種寫法。淺字重 ＋ 等寬數字，不用斜體黑體加投影 */
+.body-metric-card__value {
+    display: block;
+    font-size: 40px; font-weight: 300; line-height: 1;
+    letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+}
+.body-metric-card__state { font-size: 13px; font-weight: 700; margin: 6px 0 0; }
+.body-metric-card__badge {
+    font-size: 26px; font-weight: 300; line-height: 1; letter-spacing: -.02em;
+}
+
+/* 卡裡的小表：三列同一個寫法 */
+.body-metric-row__label { font-size: 13px; font-weight: 600; color: rgba(22, 20, 21, .5); }
+.body-metric-row__value { font-size: 15px; font-weight: 700; color: #161415; font-variant-numeric: tabular-nums; }
+
+/* 量測紀錄：預設只顯示幾筆 */
+.body-record-more {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; min-height: 52px; margin-top: 4px;
+    border: 1px solid rgba(22, 20, 21, .1); border-radius: 18px;
+    background: rgba(255, 255, 255, .5);
+    font-size: 14px; font-weight: 700; color: #161415; cursor: pointer;
+}

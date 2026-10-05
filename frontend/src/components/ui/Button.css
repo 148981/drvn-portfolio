@@ -1,0 +1,140 @@
+/* Button Component Styles */
+
+.ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-weight: var(--font-semibold);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Sizes */
+.button-sm {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    min-height: 32px;
+}
+
+.button-md {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+    min-height: 40px;
+}
+
+.button-lg {
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--text-lg);
+    min-height: 48px;
+}
+
+/* Variants */
+.button-primary {
+    background: var(--color-primary);
+    color: #000;
+}
+
+.button-primary:hover:not(.button-disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.button-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
+}
+
+.button-secondary:hover:not(.button-disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--border-strong);
+}
+
+.button-outline {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.button-outline:hover:not(.button-disabled) {
+    background: var(--color-primary-light);
+}
+
+.button-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.button-ghost:hover:not(.button-disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.button-danger {
+    background: var(--color-error);
+    color: white;
+}
+
+.button-danger:hover:not(.button-disabled) {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* States */
+.button-full-width {
+    width: 100%;
+}
+
+.button-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.button-loading {
+    pointer-events: none;
+}
+
+/* Icons */
+.button-icon {
+    flex-shrink: 0;
+}
+
+.button-icon-left {
+    margin-right: calc(var(--space-1) * -1);
+}
+
+.button-icon-right {
+    margin-left: calc(var(--space-1) * -1);
+}
+
+/* Loading Spinner */
+.button-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Active state */
+.ui-button:active:not(.button-disabled) {
+    transform: scale(0.98);
+}

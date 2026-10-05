@@ -1,0 +1,212 @@
+/* ═══════════════════════════════════════════════════════════════
+   MOTION DETECTION — DESIGN SYSTEM
+   Swiss editorial layout · Titanium materiality · Single accent
+   Palette (圖二):
+     White Smoke      #F5F5F5
+     Metallic Silver  #B9C8D7
+     Red Orange       #FF4628
+     Charcoal Black   #202020
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Surfaces ──────────────────────────────────────────────── */
+  --ms-paper:        #F2F1EE;   /* page background — warm smoke */
+  --ms-surface:      #FBFAF8;   /* raised card surface          */
+  --ms-surface-2:    #ECEAE5;   /* recessed / track surface     */
+  --ms-ink:          #202020;   /* charcoal — primary text      */
+  --ms-ink-2:        #6C6A66;   /* secondary text               */
+  --ms-ink-3:        #A8A6A0;   /* tertiary / captions          */
+  --ms-line:         #DAD8D2;   /* hairline rule                */
+  --ms-line-strong:  #C4C2BB;
+
+  /* ── Accent — single, non-negotiable ──────────────────────── */
+  --ms-accent:       #FF4628;   /* red orange                   */
+  --ms-accent-deep:  #D8351B;   /* pressed / ember              */
+  --ms-accent-wash:  rgba(255, 70, 40, 0.10);
+
+  /* ── Titanium — metallic silver gradient stops ────────────── */
+  --ms-ti-light:     #DFE4EA;
+  --ms-ti-mid:       #B9C8D7;
+  --ms-ti-dark:      #97A6B6;
+
+  /* ── Semantic grades ──────────────────────────────────────── */
+  --ms-grade-strong: #202020;   /* good form — charcoal         */
+  --ms-grade-watch:  #B9C8D7;   /* watch — silver               */
+  --ms-grade-weak:   #FF4628;   /* needs work — accent          */
+
+  /* ── Type ─────────────────────────────────────────────────── */
+  --ms-font: "Noto Sans TC", system-ui, -apple-system, sans-serif;
+  --ms-mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+
+  /* ── Elevation — shadows tinted to paper hue ──────────────── */
+  --ms-shadow-sm:  0 1px 2px rgba(32, 32, 32, 0.04);
+  --ms-shadow-md:  0 8px 24px -10px rgba(32, 32, 32, 0.16);
+  --ms-shadow-lg:  0 24px 48px -18px rgba(32, 32, 32, 0.22);
+
+  /* titanium bevel — inset highlight + base shadow */
+  --ms-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+              inset 0 -1px 2px rgba(151, 166, 182, 0.30);
+
+  /* ── Geometry ─────────────────────────────────────────────── */
+  --ms-r-sm: 10px;
+  --ms-r-md: 16px;
+  --ms-r-lg: 24px;
+
+  /* ── Easing ───────────────────────────────────────────────── */
+  --ms-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   PRIMITIVES
+   ─────────────────────────────────────────────────────────────── */
+
+.ms-screen {
+  min-height: 100dvh;
+  max-width: 440px;
+  margin: 0 auto;
+  background: var(--ms-paper);
+  color: var(--ms-ink);
+  font-family: var(--ms-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Editorial overline label — Swiss caps tracking */
+.ms-overline {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ms-ink-3);
+}
+
+/* Hairline rule — Swiss grid divider */
+.ms-rule {
+  height: 1px;
+  background: var(--ms-line);
+  width: 100%;
+}
+
+/* Mono numerals — for any quantitative value */
+.ms-num { font-family: var(--ms-mono); font-feature-settings: "tnum"; }
+
+/* ── Titanium surface — brushed metal card ──────────────────── */
+.ms-titanium {
+  background:
+    linear-gradient(152deg,
+      var(--ms-ti-light) 0%,
+      var(--ms-ti-mid) 52%,
+      var(--ms-ti-dark) 100%);
+  box-shadow: var(--ms-bevel), var(--ms-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+/* brushed-metal micro-streak */
+.ms-titanium::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.00) 0px,
+    rgba(255, 255, 255, 0.05) 1px,
+    rgba(255, 255, 255, 0.00) 3px);
+  pointer-events: none;
+}
+
+/* ── Paper card — soft raised editorial panel ───────────────── */
+.ms-card {
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-line);
+  border-radius: var(--ms-r-md);
+  box-shadow: var(--ms-shadow-sm);
+}
+
+/* ── Recessed track ─────────────────────────────────────────── */
+.ms-recess {
+  background: var(--ms-surface-2);
+  box-shadow: inset 0 2px 4px rgba(32, 32, 32, 0.06),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   INTERACTION
+   ─────────────────────────────────────────────────────────────── */
+.ms-tap { transition: transform 0.18s var(--ms-ease); }
+.ms-tap:active { transform: scale(0.97); }
+
+.ms-press {
+  transition: transform 0.18s var(--ms-ease), box-shadow 0.18s var(--ms-ease);
+}
+.ms-press:active { transform: translateY(1px); }
+
+/* ───────────────────────────────────────────────────────────────
+   ANIMATION
+   ─────────────────────────────────────────────────────────────── */
+@keyframes ms-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ms-rise {
+  animation: ms-rise 0.6s var(--ms-ease) both;
+}
+
+@keyframes ms-sweep {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(110%); }
+}
+.ms-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 70%);
+  animation: ms-sweep 2.4s var(--ms-ease) infinite;
+}
+
+@keyframes ms-breathe {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.82); }
+}
+.ms-breathe { animation: ms-breathe 2.2s ease-in-out infinite; }
+
+/* 呼吸燈（容器版）：提醒「還有事沒做完」時讓整條卡片緩慢發光。
+   規範：coral glow 2.5–3s ease-in-out；不用於錯誤（錯誤用即時 toast）。 */
+@keyframes ms-glow-coral {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 92, 75, 0);    border-color: rgba(217, 64, 48, 0.24); }
+  50%      { box-shadow: 0 0 18px 2px rgba(249, 92, 75, 0.30); border-color: rgba(217, 64, 48, 0.70); }
+}
+.ms-glow-coral { animation: ms-glow-coral 2.8s ease-in-out infinite; }
+
+/* 夜市／餐廳的霓虹感（只用在「選食物」那一段的深色面板）。
+   遵守氛圍燈五原則：一個光源、藏在內容後面、低透明度大模糊、
+   色相取自色票（coral / ember），只有活著的狀態才呼吸。 */
+@keyframes ms-neon-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.06); }
+}
+.ms-neon-ambient { animation: ms-neon-breathe 6s ease-in-out infinite; }
+
+/* 選中的霓虹字：外圈柔光，不是描邊字（描邊字會糊掉中文） */
+.ms-neon-on {
+  box-shadow: 0 0 18px rgba(249, 92, 75, 0.45), 0 0 3px rgba(249, 92, 75, 0.65);
+}
+.ms-neon-sign {
+  text-shadow: 0 0 10px rgba(249, 92, 75, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-neon-ambient { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ms-glow-coral { animation: none; } }
+
+@keyframes ms-scan {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(2100%); }
+}
+
+/* hide scrollbar on horizontal metric rails */
+.ms-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.ms-no-scrollbar::-webkit-scrollbar { display: none; }

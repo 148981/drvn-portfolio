@@ -1,0 +1,2597 @@
+/* 🟡 Perf(font): 移除 render-blocking 的遠端字體 @import。
+   Plus Jakarta Sans / Tenor Sans 已在本檔下方有本地 @font-face；
+   Noto Sans TC 由 index.html 載入的 /fonts/fonts.css 自架字體覆蓋；
+   JetBrains Mono 改由 index.html 的 <link>（非阻塞、可平行下載）載入。
+   CSS @import 是最糟的字體載入方式（會延後發現並阻塞整份 CSS 解析）。 */
+@import './styles/design-tokens.css';
+@import './styles/mobile-theme.css';
+@import './styles/polish.css';     /* UI Polish: contrast, spacing, interaction states — loaded last to override */
+@import './styles/motion-system.css';  /* Motion-detection redesign — Swiss + titanium */
+@import './styles/titanium-system.css';
+@import './styles/map-tiles.css';
+@import './styles/bento-grid.css';   /* Bento 版面骨架 — DRVN 預設頁面布局 */ /* Unified titanium design language — Segment / Trends */
+@import './styles/liquid-glass.css';   /* Liquid Glass material (iOS 26) — glass cards, buttons, AI orb */
+@import 'leaflet/dist/leaflet.css';
+
+/* 🔢 全站數字等寬（審查報告 §F-2）：
+   計時器/配速/重量等數據跳動時寬度不再抖動——高級感低成本修正。
+   font-variant-numeric 只影響數字字形，文字排版不受影響。 */
+:root {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+ * 社群頁（跑步／健身）的頂部節奏 —— 單一真相源（介面標準 §8）
+ * ──────────────────────────────────────────────────────────────────────
+ * 分頁列是 fixed、內容是靜態流，兩者的位置必須一起算。
+ * 這三個值本來在 7 個地方各寫一份 max(…) 字串，改一個就會有一頁對不齊。
+ *
+ * --community-tabbar-top   分頁列距畫面頂端（要讓開靈動島）
+ * --community-tabbar-h     分頁列高度：內距 6×2 ＋ 按鈕 py 10×2 ＋ 圖示 18 ＋ gap 6 ＋ 標籤 13
+ * --community-content-top  分頁列下方內容的起點
+ * --community-sticky-top   頁內 sticky 工具列吸附位置（必須在分頁列「下面」，
+ *                          否則會滑到那顆浮動膠囊後面被蓋住）
+ * ══════════════════════════════════════════════════════════════════════ */
+:root {
+  --community-tabbar-top: max(72px, calc(env(safe-area-inset-top, 44px) + 24px));
+  --community-tabbar-h: 69px;
+  --community-content-top: calc(var(--community-tabbar-top) + var(--community-tabbar-h) + 20px);
+  --community-sticky-top: calc(var(--community-tabbar-top) + var(--community-tabbar-h) + 8px);
+}
+
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Tenor Sans';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/TenorSans-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/plus-jakarta-sans-v12-latin-800.woff2') format('woff2');
+}
+
+
+
+/* iOS WebView 觸控修復 */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* 主字體：Noto Sans TC（正文）為核心，後備拉丁字體 */
+    font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+}
+
+button,
+a,
+[role="button"] {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* 🩹 微型觸控目標的逃生門
+   mobile-theme.css 對所有 <button> 強制 min-width/min-height: 44px（觸控可及性）。
+   但資料視覺化裡的「一天一格 / 一天一棟樓」本來就只有 11–15px 寬 ——
+   套上 44px 之後整張圖會爆開成一堆大灰塊（進化日誌的出席圖就是這樣壞掉的）。
+   這些元素的尺寸是資料本身的一部分，不能被 UI 規則改寫，所以給一個明確的例外。
+   ⚠️ 只用在圖表元素上，一般按鈕不准掛這個 class。 */
+.micro-target,
+button.micro-target {
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+
+/* Hide Spin Buttons globally */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Global CSS Variables - Morandi/Earthy Theme (Legacy) */
+:root {
+    --card-bg-primary: #F9F8F6;
+    --card-bg-secondary: #F2F1ED;
+    --text-primary: #3C3C3B;
+    --text-secondary: #8A8A8A;
+    --text-accent: #6B7D5B;
+    --zone-recovery: #AAB39F;
+    --zone-fat-burn: #9FB3B3;
+    --zone-aerobic: #D1B3B3;
+    --zone-anaerobic: #D1A58F;
+    --zone-extreme: #B88A8A;
+    /* 字體系統：Noto Sans TC 主體 / Noto Serif TC 標題層次 */
+    --font-sans: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+}
+
+/* Global Weight Adjustments for Plus Jakarta Sans */
+.font-black { font-weight: 800; letter-spacing: -0.01em; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.font-normal { font-weight: 400; }
+.font-light { font-weight: 300; }
+
+/* --- Effort Depth Card Container (Legacy) --- */
+.effort-card-container {
+    background-color: var(--card-bg-primary);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
+    font-family: var(--font-sans);
+}
+
+.card-main-content {
+    padding: 24px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.card-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.header-metric-group {
+    text-align: right;
+}
+
+.main-metric-value {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-accent);
+    line-height: 1;
+    display: block;
+}
+
+.main-metric-unit {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* --- Chart Section --- */
+.chart-container {
+    margin-bottom: 8px;
+}
+
+.stacked-bar {
+    display: flex;
+    height: 14px;
+    width: 100%;
+    border-radius: 7px;
+    overflow: hidden;
+    background-color: var(--card-bg-secondary);
+    margin-bottom: 16px;
+}
+
+.bar-segment {
+    height: 100%;
+    border-right: 2px solid var(--card-bg-primary);
+    box-sizing: content-box;
+}
+
+.bar-segment:last-child {
+    border-right: none;
+}
+
+.bar-segment.recovery {
+    background-color: var(--zone-recovery);
+}
+
+.bar-segment.fat-burn {
+    background-color: var(--zone-fat-burn);
+}
+
+.bar-segment.aerobic {
+    background-color: var(--zone-aerobic);
+}
+
+.bar-segment.anaerobic {
+    background-color: var(--zone-anaerobic);
+}
+
+.bar-segment.extreme {
+    background-color: var(--zone-extreme);
+}
+
+/* --- Legend Grid --- */
+.legend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.legend-dot.recovery {
+    background-color: var(--zone-recovery);
+}
+
+.legend-dot.fat-burn {
+    background-color: var(--zone-fat-burn);
+}
+
+.legend-dot.aerobic {
+    background-color: var(--zone-aerobic);
+}
+
+.legend-dot.anaerobic {
+    background-color: var(--zone-anaerobic);
+}
+
+.legend-dot.extreme {
+    background-color: var(--zone-extreme);
+}
+
+.legend-label {
+    color: var(--text-secondary);
+    margin-right: 4px;
+    font-weight: 500;
+}
+
+.legend-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* --- Footer Section --- */
+.card-footer {
+    background-color: var(--card-bg-secondary);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.footer-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.footer-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SWISS EDITORIAL MOTION SYSTEM — Pure CSS Layer
+   Motion Personality: PREMIUM / Swiss High-Fashion Magazine
+   These classes complement framer-motion variants for elements
+   that are rendered without JS animation (server-side, static).
+
+   Easing DNA:
+     --swiss-ease-enter : MD3 Emphasized (dramatic, editorial)
+     --swiss-ease-exit  : MD3 Accelerate (decisive, snappy)
+     --swiss-ease-lift  : Gentle content float
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+    --swiss-ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --swiss-ease-decel: cubic-bezier(0.76, 0, 0.24, 1);
+    --swiss-ease-lift:  cubic-bezier(0.4, 0, 0.2, 1);
+    --swiss-ease-exit:  cubic-bezier(0.3, 0, 1, 1);
+    --swiss-dur-quick:    0.30s;
+    --swiss-dur-standard: 0.50s;
+    --swiss-dur-slow:     0.75s;
+    --swiss-dur-dramatic: 1.00s;
+}
+
+/* ── Keyframe: Fade + drift up (primary entrance) ── */
+@keyframes swissFadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Keyframe: Fade + drift up SLOW (hero / stat reveal) ── */
+@keyframes swissFadeUpSlow {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Keyframe: Headline mask reveal (text rises from behind a clip) ── */
+@keyframes swissMaskRise {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0%); }
+}
+
+/* ── Keyframe: Hairline expand (horizontal rule reveals left→right) ── */
+@keyframes swissHairlineExpand {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+/* ── Keyframe: Clip reveal top→bottom (editorial image curtain) ── */
+@keyframes swissClipReveal {
+    from { clip-path: inset(0 0 100% 0); }
+    to   { clip-path: inset(0 0 0% 0); }
+}
+
+/* ── Keyframe: Badge pop (label / tag entrance) ── */
+@keyframes swissBadgePop {
+    from { opacity: 0; transform: scale(0.80) translateY(4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Keyframe: Card entrance (slight scale + drift) ── */
+@keyframes swissCardEnter {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Keyframe: Ambient float (continuous gentle bob) ── */
+@keyframes swissAmbientFloat {
+    0%, 100% { transform: translateY(-8px) translateX(-4px); }
+    50%       { transform: translateY(8px)  translateX(4px); }
+}
+
+/* ── Keyframe: Ambient pulse (glow / opacity breathe) ── */
+@keyframes swissAmbientPulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 0.7; }
+}
+
+/* ── Utility Classes ── */
+
+/* Page-level entrance — apply to outermost wrapper */
+.swiss-page-enter {
+    animation: swissFadeUp var(--swiss-dur-slow) var(--swiss-ease-enter) both;
+}
+
+/* Standard content block entrance */
+.swiss-fade-up {
+    animation: swissFadeUp var(--swiss-dur-standard) var(--swiss-ease-lift) both;
+}
+
+/* Hero / stat number reveal */
+.swiss-fade-up-slow {
+    animation: swissFadeUpSlow var(--swiss-dur-slow) var(--swiss-ease-decel) both;
+}
+
+/* Card entrance */
+.swiss-card-enter {
+    animation: swissCardEnter var(--swiss-dur-standard) var(--swiss-ease-decel) both;
+}
+
+/* Badge / label pop */
+.swiss-badge-enter {
+    animation: swissBadgePop var(--swiss-dur-quick) var(--swiss-ease-lift) both;
+}
+
+/* Editorial clip reveal (for images / hero blocks) */
+.swiss-clip-reveal {
+    animation: swissClipReveal var(--swiss-dur-dramatic) var(--swiss-ease-decel) both;
+    overflow: hidden;
+}
+
+/* Hairline expand — must set transform-origin: left */
+.swiss-hairline {
+    transform-origin: left center;
+    animation: swissHairlineExpand var(--swiss-dur-slow) var(--swiss-ease-decel) both;
+}
+
+/* Headline mask wrapper — parent must have overflow: hidden */
+.swiss-mask-wrapper {
+    overflow: hidden;
+    display: block;
+}
+.swiss-mask-line {
+    animation: swissMaskRise var(--swiss-dur-slow) var(--swiss-ease-decel) both;
+}
+
+/* Continuous ambient float */
+.swiss-ambient-float {
+    animation: swissAmbientFloat 8s ease-in-out infinite;
+}
+
+/* Continuous glow breathe */
+.swiss-ambient-pulse {
+    animation: swissAmbientPulse 4s ease-in-out infinite;
+}
+
+/* Stagger helpers — add delay to sequential children */
+.swiss-stagger-1  { animation-delay: 0.06s; }
+.swiss-stagger-2  { animation-delay: 0.12s; }
+.swiss-stagger-3  { animation-delay: 0.18s; }
+.swiss-stagger-4  { animation-delay: 0.24s; }
+.swiss-stagger-5  { animation-delay: 0.30s; }
+.swiss-stagger-6  { animation-delay: 0.36s; }
+.swiss-stagger-7  { animation-delay: 0.42s; }
+.swiss-stagger-8  { animation-delay: 0.48s; }
+
+/* Transition: chic — used on hover / active state changes */
+.swiss-transition {
+    transition: all var(--swiss-dur-slow) var(--swiss-ease-decel);
+}
+.swiss-transition-quick {
+    transition: all var(--swiss-dur-quick) var(--swiss-ease-lift);
+}
+
+/* ═══ Weekly Vibe & Resonance System Animations ═══ */
+@keyframes vibeGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px currentColor;
+    }
+
+    50% {
+        box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+    }
+}
+
+@keyframes hologramSweep {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes vibeBreath {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes auroraFlow1 {
+    0% {
+        transform: translateX(0%) translateY(0%) scale(1);
+    }
+
+    33% {
+        transform: translateX(8%) translateY(-4%) scale(1.08);
+    }
+
+    66% {
+        transform: translateX(-6%) translateY(3%) scale(0.95);
+    }
+
+    100% {
+        transform: translateX(0%) translateY(0%) scale(1);
+    }
+}
+
+@keyframes auroraFlow2 {
+    0% {
+        transform: translateX(0%) translateY(0%) scale(1);
+    }
+
+    40% {
+        transform: translateX(-10%) translateY(5%) scale(1.1);
+    }
+
+    75% {
+        transform: translateX(7%) translateY(-3%) scale(0.92);
+    }
+
+    100% {
+        transform: translateX(0%) translateY(0%) scale(1);
+    }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Start Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Global Urban Design System (V3) */
+        --loewe-beige: #F5F2ED;
+        /* 清晨背景 */
+        --morning-gold: #C5A059;
+        /* 陽光質感 */
+        --midnight-black: #020408;
+        /* 深夜背景 */
+        --electric-orange: #FF6B00;
+        /* 霓虹動能 */
+        --glass-white: rgba(255, 255, 255, 0.05);
+
+        /* 非線性奢華動效 */
+        --transition-chic: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+
+        /* 字體系統：Noto Serif TC 標題層次 / Noto Sans TC 正文 */
+        --font-headline: var(--font-display); /* §2: serif 僅限報告封面 */
+        --font-body: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    }
+
+    /* 1. 確保整個網頁底色跟你 App 的背景色一致，這樣瀏海旁邊才不會是白色的 */
+    body,
+    html {
+        background-color: #161415;
+        /* 填入你 App 最底層的背景色 */
+        color: var(--loewe-beige);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        /* 鎖定水平滾動，防止往右滑出空白頁面 */
+        max-width: 100%;
+        overflow-x: hidden;
+        /* 鎖定滾動，防止 iOS 橡皮筋回彈效應 (overscroll) 露出白邊 */
+        overscroll-behavior-y: none;
+        overscroll-behavior-x: none;
+    }
+
+    /* 2. 讓最外層的容器頂到螢幕邊緣，但內容保有安全距離 */
+    #root {
+        min-height: 100dvh;
+        /* 將 Safe Area Padding 交由各個頁面內部自己決定，這樣背景圖片才能延伸到瀏海下方 */
+    }
+
+    .font-serif {
+        font-family: var(--font-headline);
+    }
+}
+
+/* --- Urban Evolution Components (Global) --- */
+
+/* 全域噪點層 */
+.urban-noise-bg {
+    position: relative;
+    background-color: var(--midnight-black);
+}
+
+.urban-noise-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Stage 0：液態玻璃流光卡片 */
+.vision-card {
+    border-radius: 28px;
+    background: var(--glass-white);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-chic);
+}
+
+/* Note: Hover effects might need media query for touch devices, kept for desktop/preview */
+.vision-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-5px);
+}
+
+.vision-card::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: rotate(45deg);
+    transition: 1.5s;
+}
+
+.vision-card:hover::after {
+    top: 100%;
+    left: 100%;
+}
+
+/* Stage 1 (Blueprint): Wireframe Model */
+.wireframe-container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.wireframe-model {
+    width: 100px;
+    height: 180px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+    opacity: 0.4;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wireframe-model.selected {
+    opacity: 1;
+    transform: scale(1.1);
+    border-color: var(--morning-gold);
+    box-shadow: 0 0 20px rgba(197, 160, 89, 0.2);
+}
+
+.wireframe-icon {
+    stroke: #EAD8B1;
+    stroke-width: 1.5;
+    fill: none;
+    transition: all 0.6s ease;
+}
+
+.wireframe-model.selected .wireframe-icon {
+    stroke: var(--morning-gold);
+    filter: drop-shadow(0 0 10px var(--morning-gold));
+}
+
+/* Stage 2 (Dimensions): Hairline Ruler */
+/* NOTE: Replaces previous vertical ruler with horizontal scrolling one */
+.hairline-ruler-wrapper {
+    position: relative;
+    height: 140px;
+    width: 100%;
+    margin-top: 30px;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 40%, black 60%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 40%, black 60%, transparent);
+    overflow: hidden;
+}
+
+.ruler-content {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 0 50vw;
+    /* Center start */
+    overflow-x: auto;
+    height: 100%;
+    scrollbar-width: none;
+}
+
+.ruler-content::-webkit-scrollbar {
+    display: none;
+}
+
+.tick {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.tick.major {
+    height: 40px;
+    background: var(--morning-gold);
+    opacity: 1;
+}
+
+.ruler-center-pointer {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 2px;
+    height: 60px;
+    background: var(--morning-gold);
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.id-header {
+    font-family: var(--font-headline);
+    font-size: 1.2rem;
+    color: var(--morning-gold);
+    letter-spacing: 3px;
+}
+
+/* Stage 1 (Blueprint/Identity): Morning Glass & Wireframe */
+:root {
+    --morning-glass: #f0f4f7;
+    --loewe-gold: #C5A059;
+    --ink-black: #161415;
+    --hairline: 0.5px;
+    --transition-smooth: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.identity-stage {
+    width: 100vw;
+    height: 100dvh;
+    background: linear-gradient(135deg, var(--morning-glass) 0%, #ffffff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Glass refraction effect */
+.identity-stage::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.8) 50%, transparent 60%);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.wireframe-container {
+    display: flex;
+    gap: 60px;
+    margin-top: 10dvh;
+    z-index: 10;
+}
+
+.wireframe-model {
+    width: 120px;
+    height: 220px;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    opacity: 0.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.wireframe-model.selected {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* SVG wireframe styling */
+.wireframe-lines {
+    stroke: var(--ink-black);
+    stroke-width: 1.5px;
+    fill: none;
+    transition: var(--transition-smooth);
+}
+
+.wireframe-lines circle,
+.wireframe-lines line {
+    stroke: var(--ink-black);
+    stroke-width: 1.5px;
+    fill: none;
+}
+
+/* Loewe gold pulse on selection */
+.wireframe-model.selected .wireframe-pulse {
+    filter: drop-shadow(0 0 15px var(--loewe-gold));
+    stroke: var(--loewe-gold);
+    stroke-width: 1px;
+    animation: internal-pulse 2s infinite;
+}
+
+@keyframes internal-pulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.wireframe-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-black);
+}
+
+/* --- Legacy / Other Theme Components --- */
+
+
+/* Stage 2 (Chronos): Time Tunnel */
+:root {
+    /* Dynamic Background Vars */
+    --amber-gold-deep: #B8860B;
+    /* Deep Amber */
+    --afternoon-sun: rgba(255, 191, 0, 0.15);
+    --life-progress: 0.5;
+    /* Dynamic via JS */
+}
+
+.chronos-stage {
+    width: 100vw;
+    height: 100dvh;
+    /* Background evolves with progress */
+    background-color: color-mix(in srgb, var(--morning-cream), var(--amber-gold-deep) calc(var(--life-progress) * 100%));
+    transition: background-color 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Afternoon light effect (Top Right) */
+.chronos-stage::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 80%;
+    height: 150%;
+    background: linear-gradient(110deg, var(--afternoon-sun) 0%, transparent 60%);
+    transform: rotate(-15deg);
+    pointer-events: none;
+    filter: blur(60px);
+}
+
+.time-tunnel-wrapper {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    /* Faded edges for tunnel effect */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%, black 65%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 35%, black 65%, transparent 100%);
+}
+
+.tunnel-scroll-content {
+    display: flex;
+    align-items: center;
+    gap: 80px;
+    padding: 0 50vw;
+    /* Center alignment */
+    height: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tunnel-scroll-content::-webkit-scrollbar {
+    display: none;
+}
+
+.year-item {
+    font-family: var(--font-headline);
+    /* Playfair Display */
+    font-size: 2.5rem;
+    color: #161415;
+    opacity: 0.2;
+    transition: all 0.5s ease;
+    cursor: pointer;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+/* Highlight style for active year */
+.year-item.active {
+    opacity: 1;
+    transform: scale(1.5);
+    text-shadow: 0 0 20px rgba(184, 134, 11, 0.3);
+    font-weight: 400;
+    /* Adjusted weight for Playfair */
+}
+
+.chronos-header {
+    text-align: center;
+    margin-bottom: 60px;
+    z-index: 5;
+}
+
+.chronos-header h2 {
+    font-family: var(--font-headline);
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 5px;
+    color: #161415;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.chronos-header p {
+    font-family: var(--font-body);
+    /* Inter */
+    font-size: 0.6rem;
+    color: rgba(26, 26, 26, 0.6);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Stage 3 (Rhythm): Urban Pulse */
+:root {
+    /* Urban Base */
+    --concrete-base: #121417;
+    --city-intensity: 0.3;
+    /* JS controlled */
+    --neon-pulse: #FF8C00;
+    /* Neon Orange */
+}
+
+.rhythm-stage {
+    width: 100vw;
+    height: 100dvh;
+    background-color: var(--concrete-base);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Layout from bottom up */
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* City Silhouette Layer */
+.city-silhouette {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60%;
+    background-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2613&auto=format&fit=crop');
+    /* Placeholder */
+    background-size: cover;
+    background-position: bottom;
+    filter: brightness(0.2) grayscale(100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* City Lights Overlay (Dynamic Opacity) */
+.city-lights-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60%;
+    background-image: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2613&auto=format&fit=crop');
+    /* Placeholder */
+    background-size: cover;
+    background-position: bottom;
+    opacity: var(--city-intensity);
+    mix-blend-mode: screen;
+    filter: contrast(1.5) brightness(1.2);
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.slider-container {
+    width: 80%;
+    max-width: 600px;
+    margin-bottom: 10dvh;
+    z-index: 10;
+    text-align: center;
+}
+
+/* Experience Slider Track */
+.exp-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    position: relative;
+}
+
+/* Slider Thumb - Neon Glow */
+.exp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--neon-pulse);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--neon-pulse), 0 0 40px var(--neon-pulse);
+    border: 2px solid #fff;
+    transition: transform 0.2s ease;
+}
+
+.exp-slider::-webkit-slider-thumb:active {
+    transform: scale(1.5);
+}
+
+/* Slider Progress Glow */
+.exp-slider-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--neon-pulse));
+    box-shadow: 0 0 10px var(--neon-pulse);
+    pointer-events: none;
+}
+
+.frequency-hud {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.frequency-hud .days {
+    font-size: 4rem;
+    font-weight: 200;
+    letter-spacing: -2px;
+}
+
+.frequency-hud .label {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--neon-pulse);
+    text-transform: uppercase;
+    display: block;
+}
+
+/* Stage 4 (Rush Hour): Neon Tags */
+:root {
+    /* Sunset & Neon Palette */
+    --sunset-orange: #FF4500;
+    --dusk-blue: #191970;
+    /* Midnight Blue */
+    --neon-pink: #FF1493;
+    /* Lifestyle Tags */
+    --neon-cyan: #00FFFF;
+    /* Aesthetic Tags */
+    --tag-bg: rgba(255, 255, 255, 0.05);
+    --transition-elastic: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.rush-hour-stage {
+    width: 100vw;
+    height: 100dvh;
+    /* Sunset gradient */
+    background: linear-gradient(180deg, var(--dusk-blue) 0%, #000 70%, var(--sunset-orange) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Drifting Street Lights Animation */
+.rush-hour-stage::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.2;
+    animation: drift 60s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes drift {
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(-50px, -50px);
+    }
+}
+
+.hashtag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    max-width: 800px;
+    z-index: 10;
+}
+
+.hashtag {
+    padding: 12px 24px;
+    border-radius: 50px;
+    background: var(--tag-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    cursor: pointer;
+    transition: var(--transition-elastic);
+    backdrop-filter: blur(5px);
+}
+
+.hashtag:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-5px);
+    color: #fff;
+}
+
+/* Aesthetic Tags (Cyan) */
+.hashtag.aesthetic.active {
+    background: rgba(0, 255, 255, 0.1);
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px var(--neon-cyan);
+    text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* Lifestyle Tags (Pink) */
+.hashtag.lifestyle.active {
+    background: rgba(255, 20, 147, 0.1);
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+    box-shadow: 0 0 15px var(--neon-pink), inset 0 0 10px var(--neon-pink);
+    text-shadow: 0 0 5px var(--neon-pink);
+}
+
+.stage-header {
+    text-align: center;
+    margin-bottom: 50px;
+    z-index: 10;
+}
+
+.stage-header h2 {
+    font-family: var(--font-headline);
+    /* Playfair Display */
+    font-size: 2.2rem;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.stage-header p {
+    font-family: var(--font-body);
+    /* Inter */
+    font-size: 0.85rem;
+    color: var(--sunset-orange);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+/* Stage 5 (Pantry): Bistro Ambience */
+:root {
+    /* Bistro Palette */
+    --bistro-dark: #0A0A0A;
+    --warm-candle: #FFB347;
+    /* Warm Candle */
+    --wood-grain: #1F140D;
+    --icon-glass: rgba(255, 255, 255, 0.03);
+    --expansion-speed: 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.pantry-stage {
+    width: 100vw;
+    height: 100dvh;
+    /* Chandelier light effect */
+    background: radial-gradient(circle at 50% 35%, #2C1E12 0%, var(--bistro-dark) 80%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Wall texture overlay */
+.pantry-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png');
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.pantry-header {
+    text-align: center;
+    margin-bottom: 80px;
+    position: relative;
+    z-index: 10;
+}
+
+.pantry-header h2 {
+    font-family: var(--font-headline);
+    font-size: 2rem;
+    font-weight: 200;
+    color: var(--warm-candle);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.pantry-header p {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    z-index: 10;
+}
+
+.taste-bud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.taste-bud-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--icon-glass);
+    border: 1px solid rgba(255, 179, 71, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.5s ease;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Active State Expansion */
+.taste-bud-icon.active {
+    background: rgba(255, 179, 71, 0.1);
+    border-color: var(--warm-candle);
+    transform: scale(1.1);
+    color: var(--warm-candle);
+    box-shadow: 0 0 30px rgba(255, 179, 71, 0.2);
+}
+
+.taste-bud-icon.active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--warm-candle);
+    animation: diffuse-expansion var(--expansion-speed) forwards;
+}
+
+@keyframes diffuse-expansion {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+        filter: blur(10px);
+    }
+}
+
+.icon-label {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Stage 6 (Nexus): Midnight Connection */
+:root {
+    --midnight-black: #020408;
+    --neon-orange: #FF6B00;
+    --nexus-glass: rgba(255, 107, 0, 0.03);
+    --card-border: rgba(255, 107, 0, 0.15);
+}
+
+.nexus-stage {
+    width: 100vw;
+    height: 100dvh;
+    background-color: var(--midnight-black);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Neon Breathing Bottom Light */
+.nexus-stage::before {
+    content: "";
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 107, 0, 0.08) 0%, transparent 60%);
+    animation: neon-breathing 4s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes neon-breathing {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+.nexus-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+.nexus-header h2 {
+    font-family: var(--font-headline);
+    font-size: 2rem;
+    font-weight: 200;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.nexus-header p {
+    color: var(--neon-orange);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.space-grid {
+    display: flex;
+    gap: 20px;
+    z-index: 10;
+    margin-top: 20px;
+}
+
+.space-card {
+    width: 110px;
+    height: 150px;
+    background: var(--nexus-glass);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+}
+
+.space-card:hover,
+.space-card.active {
+    border-color: var(--neon-orange);
+    background: rgba(255, 107, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+    transform: translateY(-10px);
+}
+
+.space-icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--neon-orange);
+}
+
+.space-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.tech-sync-wrapper {
+    margin-top: 60px;
+    z-index: 10;
+    text-align: center;
+}
+
+.apple-watch-btn {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--neon-orange);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    transform-style: preserve-3d;
+}
+
+/* Heartbeat Pulse - Dual Rings */
+.apple-watch-btn::after,
+.apple-watch-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--neon-orange);
+    opacity: 0;
+    animation: heartbeat-pulse 2s infinite cubic-bezier(0.21, 0.61, 0.35, 1);
+}
+
+.apple-watch-btn::before {
+    animation-delay: 1s;
+}
+
+@keyframes heartbeat-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+.btn-text {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--neon-orange);
+    text-shadow: 0 0 10px var(--neon-orange);
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* Stage 7 (Reveal): Evolution ID */
+:root {
+    --midnight-void: #020408;
+    --bokeh-gold: rgba(197, 160, 89, 0.15);
+    /* Loewe Gold */
+    --bokeh-orange: rgba(255, 107, 0, 0.1);
+    /* Neon Orange */
+    --glass-stroke: rgba(255, 255, 255, 0.12);
+    --text-serif: var(--font-display); /* §2: serif 僅限報告封面 */
+}
+
+.reveal-stage {
+    width: 100vw;
+    height: 100dvh;
+    background-color: var(--midnight-void);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Bokeh Background Animation */
+.reveal-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, var(--bokeh-gold) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, var(--bokeh-orange) 0%, transparent 40%),
+        radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
+    filter: blur(80px);
+    animation: bokeh-drift 20s infinite alternate ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes bokeh-drift {
+    from {
+        transform: scale(1) translate(0, 0);
+    }
+
+    to {
+        transform: scale(1.1) translate(20px, 20px);
+    }
+}
+
+.evolution-id {
+    width: 320px;
+    min-height: 520px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(45px) saturate(150%);
+    border: 1px solid var(--glass-stroke);
+    border-radius: 36px;
+    padding: 40px 30px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    position: relative;
+    transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.id-header {
+    font-family: var(--text-serif);
+    color: var(--warm-candle);
+    /* Reusing warm gold */
+    letter-spacing: 4px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    border-bottom: 0.5px solid var(--glass-stroke);
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.tdee-display {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.tdee-display .value {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 3.5rem;
+    color: #fff;
+    font-weight: 200;
+    line-height: 1;
+}
+
+.tdee-display .label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Optimization Bagde */
+.optimization-badge {
+    display: inline-block;
+    padding: 6px 15px;
+    background: rgba(255, 107, 0, 0.1);
+    border: 0.5px solid var(--neon-orange);
+    color: var(--neon-orange);
+    font-size: 0.65rem;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-right: 8px;
+    letter-spacing: 1px;
+}
+
+.initialize-btn {
+    padding: 20px 60px;
+    background: linear-gradient(135deg, #fff 0%, #d1d1d1 100%);
+    border: none;
+    border-radius: 50px;
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #000;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.initialize-btn::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.initialize-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+.initialize-btn:hover::before {
+    opacity: 0.5;
+}
+
+.initialize-btn:active {
+    transform: scale(0.95);
+}
+
+.stamina-fill-vibrant {
+    height: 100%;
+    background: #ffffff;
+    border-radius: 100px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    position: relative;
+    transition: width 0.3s ease;
+}
+
+.stamina-fill-vibrant::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+    animation: burst-flow var(--burst-speed, 1.5s) linear infinite;
+}
+
+@keyframes burst-flow {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 200%;
+    }
+}
+
+.control-panel-organic {
+    background-color: #F9F6E8;
+    border-radius: 36px;
+    padding: 32px;
+    color: #161415;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================================
+   "My Notes" Mobile Theme (Legacy/Redesign)
+   ========================================= */
+:root {
+    --bg-notes-black: #09090b;
+    --card-notes-orange: #FF6B4A;
+    --card-notes-yellow: #FACC15;
+    --card-notes-cream: #F5EFE6;
+    --card-notes-green: #DAF5CB;
+    --card-notes-grey: #262523;
+    --text-notes-dark: #161415;
+    --text-notes-light: #F5F5F5;
+    --radius-notes: 32px;
+}
+
+.notes-wrapper {
+    background-color: var(--bg-notes-black);
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 140px;
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    color: white;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.notes-header {
+    margin-bottom: 24px;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.notes-title {
+    font-family: 'Noto Sans TC', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+}
+
+.notes-subtitle {
+    font-size: 14px;
+    opacity: 0.6;
+    margin-bottom: 6px;
+    text-align: right;
+}
+
+.notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.note-card {
+    border-radius: var(--radius-notes);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s active;
+}
+
+.note-card:active {
+    transform: scale(0.98);
+}
+
+.note-orange {
+    background-color: var(--card-notes-orange);
+    color: var(--text-notes-dark);
+}
+
+.note-yellow {
+    background-color: var(--card-notes-yellow);
+    color: var(--text-notes-dark);
+}
+
+.note-cream {
+    background-color: var(--card-notes-cream);
+    color: var(--text-notes-dark);
+}
+
+.note-green {
+    background-color: var(--card-notes-green);
+    color: var(--text-notes-dark);
+}
+
+.note-grey {
+    background-color: var(--card-notes-grey);
+    color: var(--text-notes-light);
+}
+
+.note-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.note-value-large {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.note-unit {
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.6;
+    margin-left: 2px;
+}
+
+.map-note-card {
+    grid-column: span 1;
+    height: 220px;
+    padding: 0 !important;
+}
+
+.full-width-card {
+    grid-column: span 2;
+}
+
+.notes-dock {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 390px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dock-pill-primary {
+    background-color: var(--card-notes-yellow);
+    color: black;
+    height: 60px;
+    border-radius: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.dock-pill-row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 8px;
+}
+
+.dock-pill-auth {
+    height: 50px;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* KINETIC ENERGY SYSTEM (Stamina Bar) */
+.stamina-track {
+    width: 100%;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 100px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stamina-fill {
+    height: 100%;
+    border-radius: 100px;
+    background-color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    position: relative;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stamina-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: energy-burst-flow var(--burst-speed, 1.5s) linear infinite;
+}
+
+@keyframes energy-burst-flow {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 200%;
+    }
+}
+
+.stamina-warning {
+    animation: card-stress-shake 0.2s infinite;
+    border: 2px solid #EF4444 !important;
+}
+
+@keyframes card-stress-shake {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    25% {
+        transform: translate(-2px, 1px) rotate(-0.5deg);
+    }
+
+    75% {
+        transform: translate(2px, -1px) rotate(0.5deg);
+    }
+}
+
+/* Carbon Liquid Button */
+.btn-liquid-carbon {
+    background: linear-gradient(45deg, #2C2C2C, #4A4A4A, #3D3D3D, #594D46);
+    background-size: 300% 300%;
+    animation: carbon-flow 3s ease infinite;
+    color: #FACC15;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-liquid-carbon:hover {
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+    transform: scale(1.02);
+}
+
+@keyframes carbon-flow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ==================== */
+/* ONBOARDING STAGES    */
+/* ==================== */
+
+/* Stage 4 (Rush Hour): Sunset Gradient & Neon Tags */
+:root {
+    --sunset-orange: #FF6B35;
+    --sunset-pink: #FF3C78;
+    --sunset-purple: #8B5CF6;
+}
+
+.rush-hour-stage {
+    width: 100vw;
+    height: 100dvh;
+    background: linear-gradient(180deg,
+            #1a1a2e 0%,
+            #16213e 30%,
+            #0f3460 60%,
+            #e94560 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 20px 40px;
+    overflow: hidden;
+    position: relative;
+}
+
+.rush-hour-stage::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(233, 69, 96, 0.3), transparent);
+    pointer-events: none;
+}
+
+.hashtag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 20px;
+    max-width: 360px;
+    z-index: 10;
+}
+
+.hashtag {
+    padding: 10px 18px;
+    border-radius: 18px;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.hashtag.aesthetic {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #c4b5fd;
+}
+
+.hashtag.aesthetic.active {
+    background: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+    color: #fff;
+}
+
+.hashtag.lifestyle {
+    background: rgba(255, 107, 53, 0.2);
+    border-color: rgba(255, 107, 53, 0.5);
+    color: #fdba74;
+}
+
+.hashtag.lifestyle.active {
+    background: rgba(255, 107, 53, 0.6);
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    color: #fff;
+}
+
+/* Stage 5 (Pantry): Bistro Ambience */
+:root {
+    --warm-candle: #FFD699;
+    --bistro-dark: #1A150F;
+}
+
+.pantry-stage {
+    width: 100vw;
+    height: 100dvh;
+    background: radial-gradient(ellipse at 50% 30%, rgba(255, 214, 153, 0.15) 0%, var(--bistro-dark) 70%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.pantry-header {
+    text-align: center;
+    margin-bottom: 60px;
+    z-index: 10;
+}
+
+.pantry-header p {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--warm-candle);
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.pantry-header h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: #fff;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    z-index: 10;
+}
+
+.taste-bud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.taste-bud-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 214, 153, 0.1);
+    border: 1px solid rgba(255, 214, 153, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+    color: var(--warm-candle);
+}
+
+.taste-bud-icon.active {
+    background: rgba(255, 214, 153, 0.3);
+    box-shadow: 0 0 30px rgba(255, 214, 153, 0.4);
+    transform: scale(1.1);
+    animation: taste-diffusion 2s infinite;
+}
+
+@keyframes taste-diffusion {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(255, 214, 153, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(255, 214, 153, 0.6);
+    }
+}
+
+.icon-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Stage 6 (Nexus): Midnight Connection */
+:root {
+    --neon-orange: #FF6B00;
+    --midnight-black: #0A0A0A;
+}
+
+.nexus-stage {
+    width: 100vw;
+    height: 100dvh;
+    background-color: var(--midnight-black);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.nexus-stage::before {
+    content: "";
+    position: absolute;
+    bottom: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(255, 107, 0, 0.15) 0%, transparent 60%);
+    animation: neon-breathing 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes neon-breathing {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.1);
+    }
+}
+
+.nexus-header {
+    text-align: center;
+    margin-bottom: 50px;
+    z-index: 10;
+}
+
+.nexus-header p {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--neon-orange);
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.nexus-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.space-grid {
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+    margin-bottom: 40px;
+}
+
+.space-card {
+    width: 100px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+.space-card.active {
+    border-color: var(--neon-orange);
+    box-shadow: 0 0 25px rgba(255, 107, 0, 0.3);
+    background: rgba(255, 107, 0, 0.1);
+}
+
+.space-icon {
+    font-size: 28px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.space-card.active .space-icon {
+    color: var(--neon-orange);
+}
+
+.space-label {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    line-height: 1.4;
+}
+
+.tech-sync-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+}
+
+.apple-watch-btn {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--neon-orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+.apple-watch-btn::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 1px solid var(--neon-orange);
+    opacity: 0;
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+.btn-text {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--neon-orange);
+}
+
+/* Stage Header (Shared) */
+.stage-header {
+    text-align: center;
+    margin-bottom: 40px;
+    z-index: 10;
+}
+
+.stage-header p {
+    font-family: 'SF Mono', 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.stage-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+/* --- Web Liquid Glass Button (Premium Native Aesthetic) --- */
+.web-liquid-glass {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    height: 72px;
+    border: none;
+    border-radius: 24px;
+    color: white;
+    font-weight: 900;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+
+    /* 核心玻璃效果 */
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+    /* 模擬玻璃邊緣掛光 */
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+/* 模擬液態流動的高光 */
+.web-liquid-glass .shimmer {
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 300%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0) 60%,
+            transparent);
+    animation: liquid-flow 6s infinite linear;
+    pointer-events: none;
+}
+
+/* 彩虹邊緣動畫 */
+.web-liquid-glass::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 24px;
+    padding: 1.5px;
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@keyframes liquid-flow {
+    from {
+        transform: translateX(-30%);
+    }
+
+    to {
+        transform: translateX(30%);
+    }
+}
+
+.web-liquid-glass:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.web-liquid-glass .label {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 🌙 Night Mode Override Styles */
+.is-night .bg-\[\#CFC6B8\] {
+    background-color: #1B2632 !important;
+}
+.is-night .text-\[\#161415\] {
+    color: #F6F4F1 !important;
+}
+.is-night .text-\[\#161415\]\/60 {
+    color: rgba(246, 244, 241, 0.6) !important;
+}
+.is-night .text-\[\#161415\]\/40 {
+    color: rgba(246, 244, 241, 0.4) !important;
+}
+.is-night .text-\[\#161415\]\/30 {
+    color: rgba(246, 244, 241, 0.3) !important;
+}
+.is-night .text-black {
+    color: #F6F4F1 !important;
+}
+.is-night *[style*="color: rgb(22, 20, 21)"],
+.is-night *[style*="color: #161415"],
+.is-night *[style*="color: #161415 !important"] {
+    color: #F6F4F1 !important;
+}
+.is-night *[style*="color: rgba(22, 20, 21,"],
+.is-night *[style*="color: rgba(22,20,21,"] {
+    color: rgba(246, 244, 241, 0.55) !important;
+}
+.is-night *[style*="background: rgba(22, 20, 21,"],
+.is-night *[style*="background: rgba(22,20,21,"] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.is-night *[style*="border: 1px solid rgba(22, 20, 21,"],
+.is-night *[style*="border: 1px solid rgba(22,20,21,"] {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+.is-night *[style*="border: 1.5px solid rgba(22, 20, 21,"],
+.is-night *[style*="border: 1.5px solid rgba(22,20,21,"] {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+/* DRVN OnboardingWizard 專用 — 隱藏 DrumPicker / Carousel 橫向滾軸 */
+.drvn-no-scrollbar::-webkit-scrollbar { display: none; }
+.drvn-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ──────────────────────────────────────────────────────────────
+   Liquid Glass 圓形按鈕（首頁頂部：音樂 / Logo / 頭像）
+   iOS-26 Liquid Glass 精神 → CSS：背景模糊+飽和、半透明白漸層、
+   頂部高光弧(specular)、邊緣亮邊、暖色柔影。符合 DRVN（不用彩虹邊/霓虹）。
+   ─────────────────────────────────────────────────────────────── */
+.lg-circle {
+    position: relative;
+    background: linear-gradient(150deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 100%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.7);
+    backdrop-filter: blur(18px) saturate(1.7);
+    border: 1px solid rgba(255,255,255,0.6) !important;
+    box-shadow: 0 8px 22px -10px rgba(22,20,21,0.28),
+                inset 0 1px 1px rgba(255,255,255,0.9),
+                inset 0 -3px 8px rgba(22,20,21,0.10) !important;
+    overflow: hidden;
+}
+/* 頂部高光弧 — 畫在內容之下（內容為 position 元素會疊在其上）*/
+.lg-circle::before {
+    content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 46%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 0 0 50% 50%; pointer-events: none;
+}
+.lg-circle:active { transform: scale(0.94); }
+
+/* 玻璃高光罩 — 疊在不透明內容（黑膠 / 頭像照片）之上，不擋互動 */
+.lg-dome {
+    position: absolute; inset: 0; border-radius: 9999px; pointer-events: none; z-index: 30;
+    border: 1px solid rgba(255,255,255,0.45);
+    background: linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 62%);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.85), inset 0 -4px 10px rgba(0,0,0,0.26);
+}
+@media (prefers-reduced-motion: reduce) { .lg-circle:active { transform: none; } }
+
+/* ♿️ 全站尊重系統「減少動態」設定：關掉大動畫/位移/無限循環，只留極短淡入。
+   與 main.jsx 的 <MotionConfig reducedMotion="user"> 互補（那條管 framer-motion，
+   這條管純 CSS 動畫/transition）。一般使用者(未開啟)行為完全不變。 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   回顧磚「有新回顧」邊角發光呼吸（首頁每月/每季回顧卡）
+   Definition §2.5：尊重 reduced-motion。
+   ───────────────────────────────────────────────────────────── */
+@keyframes drvnRecapNew {
+  0%, 100% { box-shadow: 0 12px 40px rgba(22,20,21,0.12), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.1), 0 0 0 1px rgba(249,92,75,0.25), 0 0 12px rgba(249,92,75,0.15); }
+  50%      { box-shadow: 0 12px 40px rgba(22,20,21,0.12), inset 0 2px 4px rgba(255,255,255,0.8), inset 0 -2px 4px rgba(0,0,0,0.1), 0 0 0 1px rgba(249,92,75,0.5), 0 0 22px rgba(249,92,75,0.35); }
+}
+.drvn-recap-new { animation: drvnRecapNew 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .drvn-recap-new { animation: none; } }

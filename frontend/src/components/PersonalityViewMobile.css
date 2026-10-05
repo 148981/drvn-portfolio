@@ -1,0 +1,159 @@
+/* ══ 運動人格頁 ══════════════════════════════════════════════════
+   返回鍵：固定 44×44 且 self-start。
+   ⚠️ 原本只有 p-2 -ml-2，在 flex flex-col 底下 align-items 預設 stretch，
+      按鈕被拉成整行寬，但箭頭只畫在最左邊。whileTap 的 scale(0.9) 是以
+      「按鈕中心」（＝螢幕中央）縮放的，整行縮小時左邊的箭頭就被往中間拉 ——
+      按起來就是「往旁邊跳一下」。固定尺寸之後，縮放只發生在箭頭自己身上。 */
+.personality-back {
+    align-self: flex-start;
+    width: 44px;
+    height: 44px;
+    margin-left: -10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* 沒資料時唯一的那顆鈕 —— 整頁的珊瑚焦點就是它。
+   原本整片畫面是一個 aspect-[4/5] 的滿版珊瑚塊，那不是焦點，那是底色。 */
+.personality-empty-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 99px;
+    background: #F95C4B;
+    color: #F6F4F1;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 28px -14px rgba(249, 92, 75, .55);
+}
+.personality-empty-alt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    margin-top: 12px;
+    padding: 0 24px;
+    border-radius: 99px;
+    border: 1px solid rgba(22, 20, 21, .12);
+    background: rgba(255, 255, 255, .6);
+    color: #161415;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ══ 還沒有足夠資料 ══════════════════════════════════════════════
+   ⚠️ 前一版把這頁收得太乾淨，連 DRVN 的編排個性一起收掉了。
+      原本那片滿版珊瑚的問題不是「太有戲」，是它用錯了角色 ——
+      珊瑚是焦點色，不是底色。
+   現在回到設計系統自己的做法：深色拉絲鈦金屬底板當錨，
+   背後一盞珊瑚氛圍燈，上面走 kicker → 大數字 → 一句話，
+   靠「淺字重大數字壓著寬字距小標」那個級距差撐起畫面，
+   珊瑚只留給最後那顆要按的鈕。 */
+.personality-empty {
+    min-height: 100dvh;
+    background: #F6F4F1;
+    color: #161415;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
+}
+
+.personality-slab {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 36px;
+    margin: 20px 0 28px;
+    min-height: 300px;
+    display: flex;
+    align-items: flex-end;
+}
+/* 暗面拉絲照片 —— 與首頁今日訓練卡、課程詳情用的是同一張 */
+.personality-slab__grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: url('/desktop/22.jpeg') center/cover;
+    opacity: .5;
+    mix-blend-mode: soft-light;
+}
+/* 氛圍燈：躲在焦點後面的一團柔光，不是一個看得出形狀的東西 */
+.personality-slab__lamp {
+    position: absolute;
+    z-index: 0;
+    left: -12%;
+    bottom: -28%;
+    width: 78%;
+    height: 78%;
+    pointer-events: none;
+    border-radius: 999px;
+    filter: blur(58px);
+    background: radial-gradient(circle, rgba(249, 92, 75, .42) 0%, rgba(249, 92, 75, .16) 46%, transparent 72%);
+    animation: personality-breathe 6s ease-in-out infinite;
+}
+@keyframes personality-breathe {
+    0%, 100% { opacity: .72; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.06); }
+}
+.personality-slab__body { position: relative; z-index: 1; padding: 32px; width: 100%; }
+
+/* 小字距大寫 kicker（設計系統的招牌） */
+.personality-kicker {
+    margin: 0 0 18px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .22em;
+    color: rgba(246, 244, 241, .55);
+}
+/* 大數字：淺字重、等寬、緊字距 */
+.personality-count { display: flex; align-items: baseline; gap: 6px; }
+.personality-count__now {
+    font-size: 84px;
+    font-weight: 300;
+    line-height: .9;
+    letter-spacing: -.04em;
+    color: #F6F4F1;
+    font-variant-numeric: tabular-nums;
+}
+.personality-count__need {
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: -.02em;
+    color: rgba(246, 244, 241, .5);
+    font-variant-numeric: tabular-nums;
+}
+/* 三格刻度：現況與目標在同一個物件上 */
+.personality-slots { display: flex; gap: 6px; margin-top: 20px; }
+.personality-slots__i {
+    flex: 1;
+    height: 4px;
+    border-radius: 99px;
+    background: rgba(246, 244, 241, .18);
+}
+.personality-slots__i.is-on { background: #F95C4B; }
+.personality-slab__line {
+    margin: 18px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: rgba(246, 244, 241, .66);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .personality-slab__lamp { animation: none; }
+}

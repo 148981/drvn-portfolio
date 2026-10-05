@@ -1,0 +1,751 @@
+/* ============================================================
+   TITANIUM SYSTEM  ·  Unified Design Language
+   Swiss editorial · intuitive data · brushed-titanium surfaces
+   ------------------------------------------------------------
+   Palette (fused from Image 3):
+     Deep Black  #161415   structural / hero blocks
+     Paper       #F6F4F1   page background
+     Stone       #E4DED2   light surfaces / info bars
+     Pebble      #CFC6B8   borders / dividers / transition tone
+     Coral       #F95C4B   single accent (selection, highlight)
+     Ember       #D94030   accent-on-dark / alerts
+   ============================================================ */
+
+:root {
+    /* ---- core palette ---- */
+    --ti-black:   #161415;
+    --ti-paper:   #F6F4F1;
+    --ti-stone:   #E4DED2;
+    --ti-pebble:  #CFC6B8;
+    --ti-coral:   #F95C4B;
+    --ti-ember:   #D94030;
+
+    /* ---- text on light ---- */
+    --ti-ink:        #161415;
+    --ti-ink-soft:   rgba(22, 20, 21, 0.62);
+    --ti-ink-faint:  rgba(22, 20, 21, 0.40);
+    --ti-ink-ghost:  rgba(22, 20, 21, 0.22);
+
+    /* ---- text on dark ---- */
+    --ti-paper-soft:  rgba(246, 244, 241, 0.66);
+    --ti-paper-faint: rgba(246, 244, 241, 0.40);
+
+    /* ---- motion ---- */
+    --ti-ease:    cubic-bezier(0.16, 1, 0.3, 1);
+    --ti-spring:  cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+/* ============================================================
+   1 · TITANIUM SURFACES
+   A brushed-metal panel built purely from CSS gradients +
+   inset highlights — no images, GPU-cheap, prints crisply.
+   ============================================================ */
+
+/* --- Light titanium card (warm neutral, the workhorse) --- */
+.ti-surface {
+    background:
+        linear-gradient(135deg,
+            #FBFAF8 0%,
+            #EFEBE3 34%,
+            #DAD2C4 66%,
+            #F1ECE3 100%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 14px 34px rgba(22, 20, 21, 0.07),
+        0 2px 6px  rgba(22, 20, 21, 0.04),
+        inset 0 2px 3px  rgba(255, 255, 255, 1),
+        inset 0 -3px 7px rgba(22, 20, 21, 0.05);
+}
+
+/* --- Pale titanium (subtle, for nested / secondary blocks) --- */
+.ti-surface-pale {
+    background:
+        linear-gradient(135deg,
+            #FFFFFF 0%,
+            #F4F1EB 50%,
+            #E9E3D8 100%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 6px 18px rgba(22, 20, 21, 0.05),
+        inset 0 1px 2px rgba(255, 255, 255, 1),
+        inset 0 -2px 5px rgba(22, 20, 21, 0.035);
+}
+
+/* --- Dark titanium (the "Deep Black" hero block) --- */
+.ti-surface-dark {
+    background:
+        linear-gradient(135deg,
+            #2A2724 0%,
+            #1B1917 38%,
+            #100E0D 72%,
+            #232020 100%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.32),
+        inset 0 1px 1px rgba(255, 255, 255, 0.12),
+        inset 0 -4px 10px rgba(0, 0, 0, 0.5);
+    color: var(--ti-paper);
+}
+
+/* --- Brushed-metal hairline sheen (apply as overlay child) --- */
+.ti-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        linear-gradient(105deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.55) 44%,
+            rgba(255, 255, 255, 0.08) 52%,
+            transparent 60%);
+    mix-blend-mode: overlay;
+    opacity: 0.7;
+}
+.ti-sheen-dark {
+    background:
+        linear-gradient(105deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.16) 46%,
+            rgba(255, 255, 255, 0.02) 53%,
+            transparent 62%);
+    mix-blend-mode: screen;
+}
+
+/* --- 金屬條：卡片側邊的收邊點綴 -------------------------------------
+   漸層用的是設計系統既有的 Pebble Titanium（#E6E0D8 → #CFC6B8 →
+   #BDB2A3 → #A19688），不是新調的顏色 —— 那組色目前被複製在好幾支
+   元件檔裡，收一份到這裡，之後要調金屬色只動這一個地方。
+
+   上下各留 10px：卡片是圓角 + overflow:hidden，貼到邊會被切成尖角。
+   用法：<span aria-hidden className="ti-rail" /> 放在 position:relative 的卡片裡。
+--------------------------------------------------------------------- */
+.ti-rail {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 0;
+    width: 3px;
+    border-radius: 99px;
+    pointer-events: none;
+    background: linear-gradient(180deg, #E6E0D8 0%, #CFC6B8 45%, #BDB2A3 55%, #A19688 100%);
+    box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.65),
+        0 1px 2px rgba(22, 20, 21, 0.10);
+}
+
+/* 深色版金屬條 —— 淺色卡面（毛玻璃、粉紫漸層那種）上，銀色條會整條糊掉。
+   改用墨黑金屬：同一組質感（上亮下暗 + 內緣高光），只是明度反過來。
+   顏色取自設計系統的 Ink #161415 與 #2A2724／#3A3733，沒有新調色。
+   用法：<span aria-hidden className="ti-rail ti-rail--ink" /> */
+.ti-rail--ink {
+    background: linear-gradient(180deg, #3A3733 0%, #2A2724 45%, #201D1B 55%, #161415 100%);
+    box-shadow:
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.22),
+        0 1px 3px rgba(22, 20, 21, 0.28);
+}
+
+/* 右側的收筆 —— 比左邊細、更淡，只做「這張卡有兩道邊」的收斂感 */
+.ti-rail--end {
+    left: auto;
+    right: 0;
+    width: 1.5px;
+    opacity: 0.55;
+}
+
+/* --- Coral accent panel (used sparingly: 1 per screen) --- */
+.ti-surface-coral {
+    background:
+        linear-gradient(135deg,
+            #FF7A6B 0%,
+            #F95C4B 46%,
+            #DF4838 100%);
+    border: 1px solid rgba(255, 255, 255, 0.30);
+    box-shadow:
+        0 12px 30px rgba(217, 64, 48, 0.30),
+        inset 0 2px 3px rgba(255, 255, 255, 0.42),
+        inset 0 -3px 8px rgba(140, 30, 22, 0.42);
+    color: #fff;
+}
+
+/* Brushed Silver — 細髮絲拉絲亂紋銀色金屬面板
+   冷銀漸層 + 多層細髮絲紋路（不同頻率交疊製造亂紋）+ 金屬斜角立體 */
+.ti-surface-silver {
+    background:
+        /* 細垂直髮絲紋（兩種頻率交疊 → 亂紋） */
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,0) 0px,
+            rgba(255,255,255,0.40) 0.5px,
+            rgba(255,255,255,0) 1px,
+            rgba(120,124,134,0.05) 1.5px,
+            rgba(255,255,255,0) 2.4px),
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,0) 0px,
+            rgba(150,154,164,0.05) 1.7px,
+            rgba(255,255,255,0) 3.1px),
+        /* 垂直明暗反光帶（拉絲鋁的方向性反射），帶一點暖色奶油反光 */
+        linear-gradient(90deg,
+            #CBCBD0 0%,
+            #E6E6EA 11%,
+            #FAF8F6 24%,
+            #D7D7DC 38%,
+            #FDFCFA 51%,
+            #D5D5DA 63%,
+            #F5F2EE 77%,
+            #E0E0E5 90%,
+            #CACAD0 100%);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow:
+        0 12px 28px rgba(40, 42, 50, 0.14),
+        0 2px 6px  rgba(40, 42, 50, 0.06),
+        inset 0 1.5px 1px rgba(255, 255, 255, 1),
+        inset 0 -2px 6px rgba(120, 124, 138, 0.14);
+}
+/* Pure White Titanium — 純白鈦色 Liquid Glass（乾淨亮白 + 細緻金屬光澤，中性百搭）*/
+.ti-surface-white {
+    background:
+        /* 1) 拉絲髮絲紋（提高對比 → 金屬質地更明顯，但仍細緻不搶白）*/
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,0) 0px,
+            rgba(255,255,255,0.85) 0.5px,
+            rgba(255,255,255,0) 1px,
+            rgba(196,202,212,0.10) 1.6px,
+            rgba(255,255,255,0) 2.6px),
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,0) 0px,
+            rgba(188,194,206,0.06) 1.7px,
+            rgba(255,255,255,0) 3.3px),
+        /* 2) 斜向金屬反光帶（liquid glass 的方向性高光）*/
+        linear-gradient(120deg,
+            rgba(255,255,255,0) 26%,
+            rgba(255,255,255,0.85) 47%,
+            rgba(255,255,255,0.18) 53%,
+            rgba(255,255,255,0) 66%),
+        /* 3) 白鈦底漸層（兩道亮帶交錯，做出弧面玻璃光）*/
+        linear-gradient(145deg,
+            #FBFBFD 0%,
+            #FFFFFF 30%,
+            #F2F4F7 50%,
+            #FFFFFF 70%,
+            #EEF0F4 100%);
+    border: 1px solid rgba(255, 255, 255, 1);
+    box-shadow:
+        0 14px 32px rgba(40, 42, 50, 0.12),
+        0 2px 6px  rgba(40, 42, 50, 0.06),
+        inset 0 2px 1px rgba(255, 255, 255, 1),
+        inset 0 -3px 7px rgba(190, 196, 208, 0.26);
+}
+
+/* Photo Titanium — 用真實拉絲金屬照片(11.jpeg)當底材質 + 半透明白玻璃罩
+   照片提供真實金屬質地，白玻璃罩維持深色文字可讀性（liquid glass）。
+   照片放在 ::before（可獨立調亮度/飽和），白罩放在 background。 */
+.ti-surface-photo {
+    position: relative;
+    isolation: isolate;
+    /* 半透明白玻璃罩：讓底下金屬照片透出，但整體仍偏亮 → 文字可讀 */
+    background:
+        /* 2026-09：白玻璃罩各降 0.07 —— 底下的拉絲金屬照片多透一點，
+           整體仍偏亮、黑字可讀。要更金屬就繼續往下調。 */
+        linear-gradient(150deg,
+            rgba(255, 255, 255, 0.55) 0%,
+            rgba(255, 255, 255, 0.43) 42%,
+            rgba(255, 255, 255, 0.51) 60%,
+            rgba(248, 249, 251, 0.59) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 12px 30px rgba(40, 42, 50, 0.12),
+        0 2px 6px  rgba(40, 42, 50, 0.05),
+        inset 0 1.5px 1px rgba(255, 255, 255, 1),
+        inset 0 -2px 6px rgba(180, 186, 198, 0.20);
+}
+.ti-surface-photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: url('/desktop/11.jpeg');
+    background-size: cover;
+    background-position: center;
+    /* 稍微降一點亮度/飽和，避免反光帶太刺眼蓋過文字 */
+    filter: brightness(1.04) saturate(0.92) contrast(1.02);
+}
+
+/* ────────────────────────────────────────────────────────────
+   ti-glass-veil — 金屬白 Liquid Glass 罩
+   疊在拉絲金屬卡片(ti-surface-photo)之上：霜面白玻璃 + backdrop blur
+   + 頂部高光 + 對角掃光，讓金屬透出但整體像蒙了一層液態玻璃。
+   用法：在卡片容器內放一個 <span class="ti-glass-veil" />（須 position:relative,
+   內容層 z-index 提到玻璃之上）。GPU 友善，含 @supports fallback。
+   ──────────────────────────────────────────────────────────── */
+.ti-glass-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;            /* 在金屬底之上、內容(z-index≥3)之下 */
+    pointer-events: none;
+    border-radius: inherit;
+    overflow: hidden;
+    /* 霜面白玻璃本體：上亮下沉的乳白漸層，保留金屬可見度 */
+    background:
+        linear-gradient(155deg,
+            rgba(255, 255, 255, 0.42) 0%,
+            rgba(255, 255, 255, 0.20) 38%,
+            rgba(244, 246, 249, 0.16) 62%,
+            rgba(232, 235, 240, 0.28) 100%);
+    backdrop-filter: blur(7px) saturate(135%);
+    -webkit-backdrop-filter: blur(7px) saturate(135%);
+    /* 玻璃緣：頂部一道亮白內高光 + 底部淡冷影 */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -1px 3px rgba(176, 182, 196, 0.22);
+}
+/* 頂部 specular 高光帶 — Liquid Glass 的招牌反光 */
+.ti-glass-veil::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.55) 0%,
+            rgba(255, 255, 255, 0.10) 22%,
+            rgba(255, 255, 255, 0) 46%);
+}
+/* 對角金屬掃光 — 與底層 ti-sheen 呼應，強化「玻璃面反射金屬」 */
+.ti-glass-veil::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        linear-gradient(108deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.45) 47%,
+            rgba(228, 232, 240, 0.10) 53%,
+            transparent 66%);
+    mix-blend-mode: screen;
+    opacity: 0.7;
+}
+/* coral 今日卡：玻璃罩帶極淡暖調，呼應 hero 光暈但不搶 coral 焦點 */
+.ti-glass-veil--hero {
+    background:
+        linear-gradient(155deg,
+            rgba(255, 252, 251, 0.44) 0%,
+            rgba(255, 248, 246, 0.20) 40%,
+            rgba(248, 246, 249, 0.16) 64%,
+            rgba(236, 236, 240, 0.28) 100%);
+}
+/* 不支援 backdrop-filter 時：拉高白罩不透明度維持玻璃觀感 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .ti-glass-veil {
+        background:
+            linear-gradient(155deg,
+                rgba(255, 255, 255, 0.62) 0%,
+                rgba(255, 255, 255, 0.40) 42%,
+                rgba(238, 241, 246, 0.52) 100%);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ti-glass-veil::after { opacity: 0.5; }
+}
+
+/* Gunmetal — 深槍灰拉絲金屬（收尾組用，比銀色沉一階，做出層次）*/
+.ti-surface-gunmetal {
+    background:
+        /* 細垂直髮絲紋 */
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,0) 0px,
+            rgba(255,255,255,0.20) 0.5px,
+            rgba(255,255,255,0) 1px,
+            rgba(38,40,46,0.07) 1.6px,
+            rgba(255,255,255,0) 2.5px),
+        /* 斜向反光帶 */
+        linear-gradient(125deg,
+            rgba(255,255,255,0) 30%,
+            rgba(255,255,255,0.28) 46%,
+            rgba(255,255,255,0.04) 54%,
+            rgba(255,255,255,0) 64%),
+        /* 槍灰底（中性偏冷，仍保深色文字可讀）*/
+        linear-gradient(135deg,
+            #9A9A9F 0%,
+            #B2B2B7 28%,
+            #C0C0C5 50%,
+            #A2A2A7 72%,
+            #8C8C91 100%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow:
+        0 12px 28px rgba(28, 30, 36, 0.22),
+        0 2px 6px  rgba(28, 30, 36, 0.10),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.70),
+        inset 0 -2px 6px rgba(48, 50, 58, 0.22);
+}
+
+/* 銀面斜向金屬反光（冷調，配 ti-sheen 使用） */
+.ti-sheen-silver {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        linear-gradient(108deg,
+            transparent 0%,
+            rgba(255,255,255,0.6) 43%,
+            rgba(214,218,226,0.15) 51%,
+            transparent 60%);
+    mix-blend-mode: overlay;
+    opacity: 0.8;
+}
+
+/* ============================================================
+   2 · RADII  ·  Swiss-editorial soft rectangle
+   ============================================================ */
+.ti-r-lg  { border-radius: 28px; }
+.ti-r-xl  { border-radius: 36px; }
+.ti-r-2xl { border-radius: 36px; }
+.ti-r-md  { border-radius: 18px; }
+.ti-r-sm  { border-radius: 12px; }
+
+/* ============================================================
+   3 · TYPOGRAPHY  ·  data-led editorial hierarchy
+   ============================================================ */
+
+/* Eyebrow / kicker label — tiny, tracked-out, uppercase */
+.ti-kicker {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ti-ink-faint);
+}
+.ti-kicker-on-dark { color: var(--ti-paper-faint); }
+
+/* Editorial display heading */
+.ti-display {
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    color: var(--ti-ink);
+}
+
+/* Big metric number — light weight, optical alignment */
+.ti-metric {
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--ti-ink);
+}
+
+/* Monospaced data readout */
+.ti-mono {
+    font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   4 · ACCENT PRIMITIVES
+   ============================================================ */
+
+/* Coral status dot */
+.ti-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ti-coral);
+    box-shadow: 0 0 0 3px rgba(249, 92, 75, 0.16);
+}
+
+/* Hairline divider in the Pebble bridge tone */
+.ti-rule {
+    height: 1px;
+    background: var(--ti-pebble);
+    opacity: 0.7;
+}
+
+/* Primary action — Ember on dark for contrast */
+.ti-btn-primary {
+    background: linear-gradient(135deg, #F95C4B 0%, #D94030 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow:
+        0 10px 24px rgba(217, 64, 48, 0.34),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: transform 0.18s var(--ti-ease), box-shadow 0.18s var(--ti-ease);
+}
+.ti-btn-primary:active { transform: scale(0.97) translateY(1px); }
+
+/* Dark action button */
+.ti-btn-dark {
+    background: linear-gradient(135deg, #2A2724 0%, #161415 100%);
+    color: var(--ti-paper);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.28),
+        inset 0 1px 1px rgba(255, 255, 255, 0.12);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: transform 0.18s var(--ti-ease);
+}
+.ti-btn-dark:active { transform: scale(0.97) translateY(1px); }
+
+/* Ghost / pill chip */
+.ti-chip {
+    background: var(--ti-stone);
+    border: 1px solid var(--ti-pebble);
+    color: var(--ti-ink-soft);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   5 · MOTION  ·  restrained editorial entrances
+   ============================================================ */
+@keyframes ti-rise {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.ti-rise {
+    animation: ti-rise 0.6s var(--ti-ease) both;
+}
+
+/* gentle metallic shimmer for skeletons */
+@keyframes ti-shimmer {
+    0%   { background-position: -160% 0; }
+    100% { background-position: 260% 0; }
+}
+.ti-skeleton {
+    background:
+        linear-gradient(100deg,
+            #E9E3D8 30%,
+            #F6F4F1 50%,
+            #E9E3D8 70%);
+    background-size: 220% 100%;
+    animation: ti-shimmer 1.6s linear infinite;
+}
+
+/* 深底骨架：深鈦上的斜向光帶（§6.7） */
+.ti-skeleton--dark {
+    background:
+        linear-gradient(100deg,
+            #262523 30%,
+            #36322E 50%,
+            #262523 70%);
+    background-size: 220% 100%;
+    animation: ti-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ti-rise, .ti-skeleton, .ti-skeleton--dark { animation: none; }
+}
+
+/* ============================================================
+   IRIDESCENT · 珠光膠囊
+   ------------------------------------------------------------
+   絲綢上的虹彩：珍珠白底 ＋ 淡紫／薄荷／蜜桃／天藍四團彩暈，
+   緩慢流動。這是鈦金屬鍍膜偏光的「亮面版本」——
+   .ti-surface 是刷面金屬（安靜、當底），這一支是光澤（會被看見）。
+
+   ⚠️ 只給「這一頁最重要的那一顆」用。全部都用就沒有重點了。
+   ⚠️ 顏色一律在這裡定義，不要在元件裡自己調 —— 改一次全站一致。
+   ============================================================ */
+:root {
+    --ir-pearl:  #F3F1F6;   /* 珍珠白底 */
+    --ir-lilac:  196, 186, 240;
+    --ir-mint:   172, 224, 206;
+    --ir-peach:  252, 212, 188;
+    --ir-sky:    182, 210, 244;
+}
+
+.ti-iridescent {
+    position: relative;
+    isolation: isolate;                /* 讓裡面的混色不會溢到外面 */
+    overflow: hidden;
+    /* 半透明珠光底 —— 不透明的珍珠白會把下面的虹彩壓住，看起來就只是一塊淺灰。
+       壓到 .62 讓底下的色帶透出來，再配 backdrop 模糊，才有「一塊玻璃」的透感。 */
+    background: linear-gradient(135deg,
+        rgba(243, 241, 246, 0.62) 0%,
+        rgba(237, 239, 244, 0.48) 48%,
+        rgba(246, 243, 247, 0.62) 100%);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.45),
+        0 10px 26px -16px rgba(22, 20, 21, 0.34);
+}
+
+/* 不支援 backdrop-filter 時退回不透明珠光底，不能讓文字疊在會透的彩帶上 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .ti-iridescent {
+        background: linear-gradient(135deg, var(--ir-pearl) 0%, #EDEFF4 48%, #F6F3F7 100%);
+    }
+}
+
+/* 虹彩層：斜向的色帶（淡紫 → 天藍 → 薄荷 → 蜜桃），緩慢漂移。
+   ⚠️ 第一版是四團圓形色斑 ＋ blur(22px)：在這種「寬而扁」的膠囊上
+      色斑會彼此糊成一片灰白，完全看不出虹彩（有截圖比對過）。
+      絲綢的虹彩來自「帶狀」而不是「斑塊」，所以改用斜向線性色帶，
+      模糊也收到 14px —— 夠柔但保得住帶與帶之間的分界。
+   ⚠️ 薄荷的透明度刻意壓到 .42：拉高會變成一條綠，參考圖裡的綠幾乎看不見。 */
+.ti-iridescent::before {
+    content: '';
+    position: absolute;
+    inset: -18%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(103deg,
+            rgba(var(--ir-lilac), 0.88) 0%,  rgba(var(--ir-lilac), 0) 17%,
+            rgba(var(--ir-sky),   0.72) 29%, rgba(var(--ir-sky),   0) 43%,
+            rgba(var(--ir-mint),  0.42) 55%, rgba(var(--ir-mint),  0) 68%,
+            rgba(var(--ir-peach), 0.70) 83%, rgba(var(--ir-peach), 0) 97%),
+        linear-gradient(68deg,
+            rgba(var(--ir-sky),   0.40) 4%,  rgba(var(--ir-sky),   0) 22%,
+            rgba(var(--ir-lilac), 0.34) 46%, rgba(var(--ir-lilac), 0) 66%),
+        radial-gradient(50% 130% at 8% 2%,   rgba(var(--ir-lilac), 0.55) 0%, rgba(var(--ir-lilac), 0) 62%),
+        radial-gradient(46% 130% at 94% 98%, rgba(var(--ir-peach), 0.48) 0%, rgba(var(--ir-peach), 0) 64%);
+    filter: blur(14px) saturate(1.28);
+    animation: ti-iridesce 18s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+/* 摺光：中間一道白色摺痕 ＋ 兩側掠光。沒有這一層，色帶只是彩色漸層，
+   有了它才像「一塊有厚度、會反光的布」。 */
+.ti-iridescent::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(96deg,
+            rgba(255, 255, 255, 0) 32%, rgba(255, 255, 255, 0.72) 47%, rgba(255, 255, 255, 0) 60%),
+        linear-gradient(112deg,
+            rgba(255, 255, 255, 0) 0%,  rgba(255, 255, 255, 0.50) 20%, rgba(255, 255, 255, 0) 38%,
+            rgba(255, 255, 255, 0) 76%, rgba(255, 255, 255, 0.40) 90%, rgba(255, 255, 255, 0) 100%);
+}
+
+@keyframes ti-iridesce {
+    0%   { transform: translate3d(-3%, 1%, 0) scale(1.06) rotate(-1deg); }
+    50%  { transform: translate3d( 2%, 2%, 0) scale(1.09) rotate( 1.5deg); }
+    100% { transform: translate3d( 4%, 0%, 0) scale(1.07) rotate( 3deg); }
+}
+
+/* 膠囊：左右收成半圓。內距要留得夠，文字才不會撞到圓弧。 */
+.ti-capsule { border-radius: 999px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .ti-iridescent::before { animation: none; }
+}
+
+
+/* ── 金屬面板 ────────────────────────────────────────────────
+   11.jpeg 的拉絲鈦金屬照片當底，上面蓋一層米白薄紗讓文字讀得到。
+   給「這一組跟平常不一樣」的區塊用（遞減組、超級組這種特殊組型）——
+   材質本身就在說「這塊跟別的不同」，不用再加一堆顏色。
+   ⚠️ 必須 position:relative + overflow:hidden，兩層是 ::before / ::after。 */
+.ti-metal-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.62);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.80),
+        0 8px 20px -14px rgba(22, 20, 21, 0.38);
+}
+.ti-metal-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: url('/desktop/11.jpeg');
+    background-size: cover;
+    background-position: center;
+}
+.ti-metal-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(170deg, rgba(246,244,241,0.80) 0%, rgba(240,237,232,0.66) 52%, rgba(246,244,241,0.78) 100%);
+}
+
+/* ============================================================
+   FINAL DRVN · 深色拉絲鈦（雙材質之二）＋ 氛圍燈
+   ------------------------------------------------------------
+   照片本身就是表面，上面蓋一層半透明深漬 —— 拉絲看得到、黑還是黑。
+   用法：class="ti-surface-dark ti-brushed-dark"，
+         並把照片指給 --ti-brush-dark-img（元件用 import 進來的圖設定，
+         iOS 單檔打包也會一起內嵌）。沒設圖 → 只剩深色漸層，不會破。
+   ============================================================ */
+:root {
+    --ti-brush-light-img: none;
+    --ti-brush-light-wash: 0.40;  /* 越低金屬越明顯（.24 strong – .55 quiet） */
+}
+/* 亮面拉絲鈦：class="ti-surface ti-brushed"，照片由元件 import 後設給 --ti-brush-light-img */
+.ti-brushed {
+    position: relative;
+    isolation: isolate;
+    background-image:
+        linear-gradient(135deg,
+            rgba(251,250,248, var(--ti-brush-light-wash)) 0%,
+            rgba(239,235,227, calc(var(--ti-brush-light-wash) - 0.06)) 34%,
+            rgba(218,210,196, calc(var(--ti-brush-light-wash) + 0.04)) 66%,
+            rgba(241,236,227, var(--ti-brush-light-wash)) 100%),
+        var(--ti-brush-light-img);
+    background-color: #EFEBE3;
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+}
+.ti-brushed--strong { --ti-brush-light-wash: 0.24; }
+
+:root {
+    --ti-brush-dark-img: none;
+    --ti-brush-dark-wash: 0.46;   /* 越低金屬越明顯（.32 strong – .60 quiet） */
+}
+.ti-brushed-dark {
+    position: relative;
+    isolation: isolate;
+    color: var(--ti-paper);
+    background-image:
+        linear-gradient(135deg,
+            rgba(42,39,36, var(--ti-brush-dark-wash)) 0%,
+            rgba(27,25,23, calc(var(--ti-brush-dark-wash) + 0.06)) 38%,
+            rgba(16,14,13, calc(var(--ti-brush-dark-wash) + 0.10)) 72%,
+            rgba(35,32,32, var(--ti-brush-dark-wash)) 100%),
+        var(--ti-brush-dark-img);
+    background-color: #161415;
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+}
+.ti-brushed-dark--strong { --ti-brush-dark-wash: 0.32; }
+
+/* 氛圍燈：只在深色面、放在焦點後面（z-index:0）、低透明大模糊，一個場景一盞 */
+:root {
+    --ti-glow-coral: rgba(249, 92, 75, 0.30);
+    --ti-glow-ember: rgba(217, 64, 48, 0.30);
+    --ti-glow-gold:  rgba(212, 197, 165, 0.30);
+    --ti-glow-slate: rgba(139, 157, 171, 0.26);
+}
+.ti-ambient {
+    position: absolute;
+    inset: -30%;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(45% 38% at 30% 68%, var(--ti-glow-coral) 0%, transparent 62%);
+}
+.ti-ambient--warm  { background: radial-gradient(48% 40% at 50% 30%, var(--ti-glow-gold)  0%, transparent 62%); }
+.ti-ambient--cool  { background: radial-gradient(50% 42% at 50% 40%, var(--ti-glow-slate) 0%, transparent 64%); }
+.ti-ambient--ember { background: radial-gradient(45% 38% at 30% 68%, var(--ti-glow-ember) 0%, transparent 62%); }
+@keyframes ti-ambient-breathe { 0%,100% { opacity: .7 } 50% { opacity: 1 } }
+.ti-ambient--live { animation: ti-ambient-breathe 6s cubic-bezier(0.16,1,0.3,1) infinite; }
+@media (prefers-reduced-motion: reduce) { .ti-ambient--live { animation: none; } }

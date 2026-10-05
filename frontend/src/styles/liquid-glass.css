@@ -1,0 +1,762 @@
+/* =========================================================================
+   Liquid Glass Design System (iOS 26 inspired) — CSS adaptation
+   A reusable "glass material": blurs content behind, reflects light with a
+   specular highlight, supports color tint, and reacts to touch (interactive).
+   Web adaptation of Apple's .glassEffect() / UIGlassEffect.
+   ========================================================================= */
+
+:root {
+  /* 全站唯一那顆珊瑚的漸層。濃度是比對截圖定的：再深一階像警告標誌，
+     再淺一階白字的對比就撐不住。元件要用珊瑚一律讀這個變數，不要自己調。 */
+  --lg-coral-grad: linear-gradient(135deg, #FFC2B6 0%, #F99C90 46%, #F08D7D 100%);
+
+  /* 珊瑚液態玻璃 —— 全站唯一的配方，來源是計劃頁「開始訓練」那一顆。
+     以前那顆是自己在 JSX 裡寫死的，儲存鍵又在這裡另寫一份，
+     於是同一個「主要動作」在兩個畫面長得不一樣。現在兩邊都讀這四個變數。
+     ⚠️ 濃度是把四種透明度並排 render 出來比對過才定的：
+        再淡一階（alpha 0.50）白字就讀不到，再濃一階就變成飽和的塑膠紅。 */
+  --lg-coral-glass: linear-gradient(145deg,
+      rgba(249,92,75,0.66) 0%, rgba(255,138,120,0.56) 42%,
+      rgba(249,92,75,0.60) 70%, rgba(217,64,48,0.70) 100%);
+  --lg-coral-glass-filter: blur(24px) saturate(1.25) brightness(1.02);
+  --lg-coral-glass-stroke: rgba(255,255,255,0.50);
+  --lg-coral-glass-shadow:
+      0 14px 30px -10px rgba(217,64,48,0.30),
+      inset 0 2px 3px rgba(255,255,255,0.55),
+      inset 0 -2px 6px rgba(180,40,28,0.14);
+
+  /* base glass tints */
+  --lg-light: rgba(255, 255, 255, 0.55);
+  --lg-light-soft: rgba(255, 255, 255, 0.28);
+  --lg-stroke: rgba(255, 255, 255, 0.55);
+  --lg-stroke-soft: rgba(255, 255, 255, 0.30);
+  --lg-shadow: rgba(0, 0, 0, 0.18);
+  --lg-coral: #F95C4B;
+  --lg-coral-2: #FF7A6B;
+  --lg-coral-3: #D94030;
+}
+
+/* -------------------------------------------------------------------------
+   Core material. Apply to any card / container.
+   Variants via modifier classes below.
+   ------------------------------------------------------------------------- */
+.lg-glass {
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.18) 48%, rgba(255,255,255,0.34) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid var(--lg-stroke-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    inset 0 -1px 1px rgba(255,255,255,0.18),
+    0 10px 30px var(--lg-shadow);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Specular highlight sweep — the "liquid" light reflection.
+   A soft diagonal band across the top-left, like light catching glass. */
+.lg-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 18% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%),
+    linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 30%);
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+/* Keep card content above the highlight layer */
+.lg-glass > * { position: relative; z-index: 1; }
+
+/* ---- variants -------------------------------------------------------- */
+
+/* Frosted, brighter — for cards on photographic / busy backgrounds */
+.lg-glass--frost {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0.70) 100%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+  backdrop-filter: blur(30px) saturate(160%);
+}
+
+/* Tinted coral — for "active / finisher / prominent" surfaces */
+.lg-glass--coral {
+  background:
+    linear-gradient(135deg, rgba(255,122,107,0.42) 0%, rgba(249,92,75,0.22) 50%, rgba(255,138,124,0.40) 100%);
+  border-color: rgba(255,255,255,0.40);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    0 10px 30px rgba(249,92,75,0.22);
+}
+
+/* Tinted aqua — 水藍。給「回頭看」性質的卡（進化日誌）。
+   全站唯一的冷色面：一整排暖色卡裡放一塊冷的，層次才出得來。 */
+.lg-glass--aqua {
+  background:
+    linear-gradient(135deg, rgba(138,211,234,0.52) 0%, rgba(104,192,222,0.30) 50%, rgba(168,226,244,0.50) 100%);
+  border-color: rgba(255,255,255,0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.58),
+    inset 0 -1px 1px rgba(255,255,255,0.20),
+    0 10px 30px rgba(84,160,190,0.26);
+}
+
+/* Dark Liquid Glass — for tab bars / nav over photographic or dark surfaces.
+   Translucent dark gradient + strong blur/saturate (refraction) + top specular
+   highlight + inner glow, faithful to iOS 26 Liquid Glass tuned for dark UI. */
+.lg-glass--dark {
+  background:
+    linear-gradient(180deg, rgba(44,42,38,0.52) 0%, rgba(16,15,14,0.72) 100%);
+  -webkit-backdrop-filter: blur(30px) saturate(185%);
+  backdrop-filter: blur(30px) saturate(185%);
+  border-color: rgba(255,255,255,0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    inset 0 -1px 2px rgba(0,0,0,0.30),
+    0 12px 34px -10px rgba(0,0,0,0.45);
+}
+.lg-glass--dark::before {
+  background:
+    radial-gradient(130% 90% at 22% 0%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 26%);
+  mix-blend-mode: screen;
+}
+
+/* Subtle / quiet glass — for secondary chips */
+.lg-glass--quiet {
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.40), rgba(255,255,255,0.14));
+}
+
+/* Pebble / Stone glass — warm opaque glass */
+.lg-glass--pebble {
+  background: linear-gradient(135deg, rgba(225,218,206,0.85) 0%, rgba(207,198,184,0.95) 100%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border-color: rgba(255,255,255,0.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -1px 1px rgba(255,255,255,0.2),
+    0 8px 24px rgba(0,0,0,0.12);
+}
+.lg-glass--pebble::before {
+  background: radial-gradient(120% 80% at 20% 0%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 45%),
+              linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 30%);
+}
+
+/* -------------------------------------------------------------------------
+   Glass buttons
+   ------------------------------------------------------------------------- */
+.lg-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 18px;
+  border: 1px solid var(--lg-stroke);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.62) 0%, rgba(255,255,255,0.26) 50%, rgba(255,255,255,0.50) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -2px 6px rgba(255,255,255,0.18),
+    0 8px 22px rgba(0,0,0,0.16);
+  color: #161415;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, filter .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(120% 75% at 20% 0%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 50%);
+  mix-blend-mode: screen;
+}
+.lg-btn > * { position: relative; z-index: 1; }
+
+/* interactive: react to touch/pointer (press scale + brighten) */
+.lg-btn--interactive:active {
+  transform: scale(0.97);
+  filter: brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 4px 12px rgba(0,0,0,0.18);
+}
+
+/* 全站唯一那顆珊瑚按鈕 —— 用計劃頁「開始訓練」的那層液態玻璃。
+   之前這裡是平塗的淡珊瑚漸層：顏色對了，但沒有玻璃的厚度與折光，
+   跟旁邊那顆真正的液態玻璃擺在一起就看得出是兩種東西。 */
+.lg-btn--coral {
+  color: #fff;
+  border-color: var(--lg-coral-glass-stroke);
+  background: var(--lg-coral-glass);
+  -webkit-backdrop-filter: var(--lg-coral-glass-filter);
+  backdrop-filter: var(--lg-coral-glass-filter);
+  box-shadow: var(--lg-coral-glass-shadow);
+}
+/* 上緣那道鏡面高光 —— 液態玻璃之所以看起來是液態的關鍵 */
+.lg-btn--coral::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 100%);
+  inset: 0 8% auto 8%;
+  height: 40%;
+  border-radius: 0 0 999px 999px;
+  filter: blur(2px);
+  mix-blend-mode: normal;
+}
+
+/* 這裡曾經長出兩個珊瑚變體（一個降飽和、一個淡色），結果同一條訓練動線上
+   出現三種濃度不同的珊瑚按鈕。珊瑚是設計系統裡唯一的強調色，它只能有一種長相 ——
+   兩個變體都刪掉了。要表達「這顆比較不重要」就換材質（frost 白 / dark 黑），
+   不要去調珊瑚的濃度。 */
+
+/* 平面版 —— 拿掉玻璃的鏡面高光、內陰影與投影，只留底色與一條細邊。
+   給「一組並排的選項」用：三顆都有高光和厚度時，它們會互相搶，
+   眼睛反而分不出哪一顆是主要的。層級改用顏色講（珊瑚＞黑＞白）。
+   ⚠️ 平面就是平面：底色用單色，不要再放漸層。 */
+.lg-btn--flat {
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.lg-btn--flat::before { content: none; }
+
+/* ⚠️ 平面珊瑚曾經是 #F79B8E —— 那在淺色面板上讀起來是「粉」不是「珊瑚」，
+   使用者直接說「繼續按鈕改成 coral 色」。四階並排 render 比對過，
+   這一階是「一眼認得出是珊瑚、又還沒到品牌紅那麼刺眼」的位置。 */
+.lg-btn--flat.lg-btn--coral  { background: #F26A55; border-color: rgba(222,94,74,0.55); color: #fff; }
+.lg-btn--flat.lg-btn--dark   { background: #1C1A1B; border-color: rgba(22,20,21,0.9);   color: #fff; }
+.lg-btn--flat.lg-btn--frost  { background: #FFFFFF; border-color: rgba(22,20,21,0.10);  color: #161415; }
+
+/* dark glass button (e.g. GOT IT) */
+.lg-btn--dark {
+  color: #fff;
+  border-color: rgba(255,255,255,0.10);
+  background: linear-gradient(135deg, rgba(40,38,38,0.92) 0%, rgba(20,20,20,0.96) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    0 8px 24px rgba(0,0,0,0.30);
+}
+
+/* charcoal liquid glass button (e.g. GOT IT) */
+.lg-btn--charcoal {
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
+  background: linear-gradient(135deg, rgba(80,82,85,0.65) 0%, rgba(45,47,50,0.85) 100%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.35),
+    0 8px 24px rgba(0,0,0,0.25);
+}
+
+/* pebble liquid glass button (e.g. 跳過此動作) */
+.lg-btn--pebble {
+  color: #161415;
+  border-color: rgba(255,255,255,0.5);
+  background: linear-gradient(135deg, rgba(225,218,206,0.7) 0%, rgba(207,198,184,0.85) 100%); /* #CFC6B8 base */
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  backdrop-filter: blur(24px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* bright frosted glass button (e.g. 跳過此動作, secondary actions) */
+.lg-btn--frost {
+  background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.78) 100%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  backdrop-filter: blur(26px) saturate(160%);
+  border-color: rgba(255,255,255,0.7);
+}
+
+/* titanium / silver glass (e.g. RESUME) */
+.lg-btn--titanium {
+  color: #161415;
+  border-color: rgba(255,255,255,0.45);
+  background: linear-gradient(135deg, #BDB2A2 0%, #F6F4F1 45%, #DED9CF 50%, #BDB2A2 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* =========================================================================
+   AI Analysis floating orb (glass sprite) + progress ring
+   ========================================================================= */
+/* 1. 玻璃水滴外殼與 3D 質感 */
+.lg-orb {
+  position: fixed;
+  width: 64px;
+  height: 64px;
+  
+  /* 微小的不規則蠕動，保留液體張力 */
+  border-radius: 47% 53% 48% 52% / 52% 48% 51% 49%; 
+  
+  /* 3D 玻璃邊緣與反光 (核心立體感來源) */
+  box-shadow: 
+    inset 6px 8px 12px rgba(255, 255, 255, 0.7), /* 左上高光 */
+    inset -4px -6px 12px rgba(0, 0, 0, 0.1),     /* 右下暗部 */
+    0 0 20px rgba(255, 255, 255, 0.25),          /* 微微的白色外光暈 */
+    0 4px 16px rgba(249, 92, 75, 0.15);          /* 淡淡的 Coral 環境光 */
+    
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  
+  animation: blob-wobble 8s ease-in-out infinite alternate;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Wrapper class so progress ring and label float together with the orb */
+.lg-orb-wrapper {
+  animation: lg-orb-float 3.4s ease-in-out infinite;
+}
+
+.lg-orb:active { transform: scale(0.92); }
+
+/* 2. 內部流動的 Mesh Gradient (網格漸層) */
+.lg-orb::before {
+  content: '';
+  position: absolute;
+  /* 將畫布放大到 150%，讓顏色有空間漂移 */
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  
+  /* 基底色：White Smoke */
+  background-color: #F5F5F5; 
+  
+  /* 疊加多個色塊：Metallic Silver 與 Coral */
+  background-image: 
+    radial-gradient(circle at 20% 20%, #B9C8D7 0%, transparent 60%), /* 左上 Silver */
+    radial-gradient(circle at 80% 80%, #F95C4B 0%, transparent 60%), /* 右下 Coral */
+    radial-gradient(circle at 80% 20%, #B9C8D7 0%, transparent 50%), /* 右上 Silver */
+    radial-gradient(circle at 20% 80%, #F95C4B 0%, transparent 50%); /* 左下 Coral */
+    
+  /* 將背景圖放大，準備用來做位移動畫 */
+  background-size: 200% 200%;
+  
+  /* 加一點模糊，讓色塊邊緣融合成液體感 */
+  filter: blur(8px);
+  
+  /* 執行「流動」動畫 */
+  animation: fluid-mesh-flow 10s ease-in-out infinite alternate;
+  z-index: -2;
+}
+
+/* 3. 在最上層補一個銳利的月牙反光，增強表面濕潤感 */
+.lg-orb::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  width: 24px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(-25deg);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* --- 動畫設定 --- */
+
+/* 背景座標 (background-position) 位移，創造水流交融感，而不是死板的旋轉 */
+@keyframes fluid-mesh-flow {
+  0% { background-position: 0% 20%; }
+  50% { background-position: 100% 80%; }
+  100% { background-position: 20% 0%; }
+}
+
+/* 保持外殼液體輕微蠕動 */
+@keyframes blob-wobble {
+  0% { border-radius: 47% 53% 48% 52% / 52% 48% 51% 49%; }
+  33% { border-radius: 51% 49% 52% 48% / 48% 52% 49% 51%; }
+  66% { border-radius: 49% 51% 47% 53% / 53% 47% 52% 48%; }
+  100% { border-radius: 47% 53% 48% 52% / 52% 48% 51% 49%; }
+}
+
+.lg-orb--busy {
+  animation: blob-wobble 8s ease-in-out infinite alternate;
+}
+
+.lg-orb--busy::before {
+  animation: fluid-mesh-flow 3s ease-in-out infinite alternate; /* Flow much faster when busy */
+}
+
+@keyframes lg-orb-float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+
+/* 確保 Icon 在複雜背景上保持清晰 */
+.lg-orb svg {
+  color: #FFFFFF;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  z-index: 10;
+}
+
+/* register --p so the ring fill can animate smoothly (progressive enhancement) */
+@property --p {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+/* progress ring drawn as conic-gradient, --p = 0..100 */
+.lg-orb__ring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(#DED9CF calc(var(--p,0) * 1%), transparent 0%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px));
+  /* 白色光暈 */
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.65));
+  pointer-events: none;
+  transition: --p .4s ease;
+  z-index: 5;
+}
+
+/* spinning shimmer while analyzing — 白色光暈轉圈圈 */
+.lg-orb--busy .lg-orb__ring {
+  background: conic-gradient(#DED9CF calc(var(--p,0) * 1%), rgba(222, 217, 207, 0.18) 0%);
+  animation: lg-orb-spin 1.1s linear infinite;
+}
+@keyframes lg-orb-spin { to { transform: rotate(360deg); } }
+
+/* 4. 浮動標籤 (Tooltip) - Liquid Glass 材質 */
+.lg-orb__label {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 18px;
+  color: #FFFFFF; 
+  background: rgba(255, 255, 255, 0.15); 
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  backdrop-filter: blur(12px) saturate(120%);
+  box-shadow: 
+    inset 1px 1px 3px rgba(255, 255, 255, 0.6), 
+    inset -1px -1px 3px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 深鈦牆上的液態玻璃（FINAL DRVN §4.5：平的深色牆用鈦，浮在上面的一律玻璃）。
+   白色極薄一層＋強模糊：底下的拉絲被糊成柔焦反光 —— 硬金屬對軟玻璃。 */
+.lg-glass--ondark {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.06) 52%, rgba(255,255,255,0.11) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border-color: rgba(255,255,255,0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 -1px 1px rgba(255,255,255,0.06),
+    0 10px 28px -8px rgba(0,0,0,0.42);
+  color: #F6F4F1;
+}
+.lg-glass--ondark::before {
+  background:
+    radial-gradient(120% 80% at 18% 0%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 46%),
+    linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 28%);
+  mix-blend-mode: screen;
+}
+
+/* Safari/Firefox fallback when backdrop-filter unsupported */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg-glass, .lg-btn, .lg-orb { background: rgba(255,255,255,0.85); }
+  .lg-glass--coral { background: rgba(249,92,75,0.85); }
+  .lg-glass--ondark { background: rgba(38,36,33,0.92); }
+}
+
+/* =========================================================================
+   Legacy alias — .glass-card / .glass-card-light
+   ------------------------------------------------------------------------
+   過去 28 個元件使用 .glass-card / .glass-card-light，但這兩個 class
+   從未被定義 → 卡片沒有任何玻璃效果。這裡統一補上 Liquid Glass 材質，
+   讓所有舊卡片一次獲得一致的玻璃外觀。
+   這些舊畫面多為深色底＋白字，因此採「深色玻璃」確保文字可讀。
+   ========================================================================= */
+.glass-card,
+.glass-card-light {
+  position: relative;
+  background: linear-gradient(135deg, rgba(48,46,45,0.55) 0%, rgba(28,27,26,0.42) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    0 10px 30px rgba(0,0,0,0.28);
+  border-radius: 18px;
+  isolation: isolate;
+}
+/* 較亮的變體：用於需要稍微突出的卡片 */
+.glass-card-light {
+  background: linear-gradient(135deg, rgba(64,62,60,0.55) 0%, rgba(40,38,37,0.42) 100%);
+  border-color: rgba(255,255,255,0.16);
+}
+/* 鏡面高光帶 */
+.glass-card::before,
+.glass-card-light::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 18% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 50%);
+  z-index: 0;
+}
+.glass-card > *,
+.glass-card-light > * { position: relative; z-index: 1; }
+
+/* =========================================================================
+   .lg-black — 半透明黑色液態玻璃（邊緣折射出彩虹）
+   ------------------------------------------------------------------------
+   用在：自建食物的「熱量｜份量」那一塊、選份量卡（記錄這一份）。
+   像一塊燻黑的玻璃：看得到後面，只是暗一點；因為透，光在厚邊被拆開，
+   沿著邊緣往內出現一段一段的彩虹色帶（參考肥皂泡／玻璃球的色散），不是整圈均勻的彩色框。
+   層次：
+   1. 本體：rgba 墨色 .46 ＋ backdrop 模糊（透）＋ 左上鏡面高光
+   2. ::before 折射帶：18px 寬、模糊的虹彩，用兩組不同中心的 conic 疊出「一段有一段沒有」
+   3. ::after  亮邊：1px 白色高光 ＋ 細虹彩，貼著最外圈
+   虹彩帶會很慢地轉（14s），prefers-reduced-motion 時不動。
+   內容請放在 position:relative + z-index ≥ 1。
+   ========================================================================= */
+@property --lg-spin {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.lg-black {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #F6F4F1;
+  background:
+    radial-gradient(90% 60% at 12% -8%, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(70% 50% at 100% 110%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(160deg, rgba(40,38,44,0.52) 0%, rgba(18,17,21,0.60) 55%, rgba(30,28,34,0.54) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(165%) brightness(0.92);
+  backdrop-filter: blur(22px) saturate(165%) brightness(0.92);
+  border: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.30),
+    inset 0 -1px 0 rgba(255,255,255,0.10),
+    inset 0 18px 30px -22px rgba(255,255,255,0.22),
+    inset 0 -20px 34px -24px rgba(0,0,0,0.45),
+    0 22px 48px -22px rgba(0,0,0,0.50),
+    0 2px 6px rgba(0,0,0,0.14);
+}
+.lg-black::before,
+.lg-black::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+/* 折射帶：用多層「內陰影」沿圓角往內滲，邊緣柔、往中間自然淡掉（不會有一圈硬邊）。
+   每一邊顏色不同、同一邊又疊兩層不同寬度（窄的暖色在外、寬的冷色在內）＝色散。
+   hue-rotate 很慢地來回擺，顏色像泡泡表面一樣流動。 */
+.lg-black::before {
+  -webkit-mask: none;
+  mask: none;
+  mix-blend-mode: screen;
+  opacity: 0.42;   /* 微微的：看得出邊緣有一點彩色，不搶內容 */
+  /* 四個角各一團往內淡的色散（像泡泡最厚的地方），再加沿邊的內陰影 */
+  background:
+    radial-gradient(34% 42% at 0% 0%,   rgba(255,214,140,0.42) 0%, rgba(255,150,170,0.20) 45%, transparent 75%),
+    radial-gradient(34% 42% at 100% 0%, rgba(130,210,255,0.40) 0%, rgba(180,150,255,0.20) 45%, transparent 75%),
+    radial-gradient(34% 42% at 0% 100%, rgba(150,245,200,0.34) 0%, rgba(120,190,255,0.18) 45%, transparent 75%),
+    radial-gradient(34% 42% at 100% 100%, rgba(255,150,210,0.38) 0%, rgba(255,210,140,0.18) 45%, transparent 75%);
+  box-shadow:
+    inset 2px 0 4px -1px rgba(255,190,140,0.90),
+    inset 16px 0 24px -12px rgba(255,120,170,0.70),
+    inset -2px 0 4px -1px rgba(130,210,255,0.90),
+    inset -16px 0 24px -12px rgba(170,140,255,0.70),
+    inset 0 2px 4px -1px rgba(170,250,210,0.80),
+    inset 0 16px 24px -12px rgba(255,230,140,0.55),
+    inset 0 -2px 4px -1px rgba(210,160,255,0.85),
+    inset 0 -16px 24px -12px rgba(120,200,255,0.60);
+  animation: lg-black-hue 9s ease-in-out infinite alternate;
+}
+@keyframes lg-black-hue {
+  from { filter: hue-rotate(-14deg); }
+  to   { filter: hue-rotate(14deg); }
+}
+/* 亮邊：最外一圈白光 ＋ 細虹彩 */
+.lg-black::after {
+  padding: 1px;
+  opacity: 0.55;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.10) 35%, rgba(255,255,255,0.04) 60%, rgba(255,255,255,0.28) 100%),
+    conic-gradient(from calc(200deg + var(--lg-spin)),
+      rgba(255,160,120,0.55), rgba(255,230,140,0.45), rgba(140,240,190,0.45),
+      rgba(120,190,255,0.55), rgba(190,140,255,0.50), rgba(255,140,200,0.45), rgba(255,160,120,0.55));
+  animation: lg-black-spin 14s linear infinite;
+}
+@keyframes lg-black-spin { to { --lg-spin: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .lg-black::before, .lg-black::after { animation: none; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg-black { background: linear-gradient(160deg, rgba(40,38,44,0.92) 0%, rgba(22,21,25,0.94) 100%); }
+}
+
+/* 柔和的珊瑚玻璃按鈕 —— 放在 .lg-black 上的主要動作。
+   ti-btn-primary 的飽和珊瑚在半透明黑玻璃上太刺，這裡降飽和、帶一點透明。 */
+.lg-btn-soft-coral {
+  position: relative;
+  z-index: 1;
+  color: #FFF6F3;
+  background: linear-gradient(160deg, rgba(240,128,112,0.80) 0%, rgba(214,98,84,0.74) 100%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  backdrop-filter: blur(12px) saturate(120%);
+  border: 1px solid rgba(255,220,210,0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(0,0,0,0.08),
+    0 10px 24px -12px rgba(217,64,48,0.45);
+  transition: transform 0.18s cubic-bezier(0.16,1,0.3,1);
+}
+.lg-btn-soft-coral:active { transform: scale(0.97) translateY(1px); }
+.lg-btn-soft-coral:disabled { opacity: 0.55; }
+
+
+/* =========================================================================
+   .lg-prism — 透亮玻璃（選份量卡）
+   ------------------------------------------------------------------------
+   底：Mist 冷灰、半透明 ＋ 背景模糊。
+   ::before 三團很淡的粉彩（顏色與位置由 utils/prismGlass 每次打開隨機給，CSS 變數 --pz-*），
+            像一疊半透明玻璃片疊在一起透出來的光；很大、很糊，只是底色的氣氛。
+   ::after  玻璃的厚邊：一圈細白高光 ＋ 非常淡的虹彩（角度也隨機），
+            只在最外圈，微微的。
+   內容請放在 position:relative + z-index ≥ 1。字用墨黑。
+   ========================================================================= */
+.lg-prism {
+  position: relative;
+  isolation: isolate;
+  color: #161415;
+  background:
+    radial-gradient(90% 55% at 15% -5%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 55%),
+    linear-gradient(165deg, rgba(240,241,238,0.80) 0%, rgba(232,233,230,0.72) 55%, rgba(226,228,226,0.78) 100%);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: blur(26px) saturate(170%);
+  /* 邊緣：白色厚邊 ＋ 沿圓角往內滲的一點彩色（左／右／下各取這次的一個粉彩）＋ 外面一圈很淡的彩色光暈。
+     顏色都來自 --pz-*-edge（每次打開不同），所以光暈跟卡片裡的粉彩是同一組。 */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 0 rgba(255,255,255,0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.35),
+    inset 0 18px 30px -24px rgba(255,255,255,0.9),
+    inset 3px 0 8px -3px var(--pz-a-edge, rgba(246,226,150,0.5)),
+    inset 12px 0 22px -14px var(--pz-a-edge, rgba(246,226,150,0.5)),
+    inset -3px 0 8px -3px var(--pz-b-edge, rgba(244,180,214,0.5)),
+    inset -12px 0 22px -14px var(--pz-b-edge, rgba(244,180,214,0.5)),
+    inset 0 -3px 8px -3px var(--pz-c-edge, rgba(176,208,246,0.5)),
+    inset 0 -12px 22px -14px var(--pz-c-edge, rgba(176,208,246,0.5)),
+    -6px 0 26px -12px var(--pz-a-edge, rgba(246,226,150,0.5)),
+    6px 0 26px -12px var(--pz-b-edge, rgba(244,180,214,0.5)),
+    0 26px 60px -24px rgba(22,20,21,0.38),
+    0 2px 8px rgba(22,20,21,0.08);
+}
+.lg-prism::before,
+.lg-prism::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+.lg-prism::before {
+  background:
+    radial-gradient(55% 45% at var(--pz-a-at, 20% 20%), var(--pz-a, rgba(246,226,150,0.6)) 0%, transparent 70%),
+    radial-gradient(55% 45% at var(--pz-b-at, 80% 55%), var(--pz-b, rgba(244,180,214,0.55)) 0%, transparent 70%),
+    radial-gradient(60% 45% at var(--pz-c-at, 35% 90%), var(--pz-c, rgba(176,208,246,0.5)) 0%, transparent 72%);
+  filter: blur(18px) saturate(115%);
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}
+.lg-prism::after {
+  padding: 1.25px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  background:
+    linear-gradient(165deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.15) 70%, rgba(255,255,255,0.7) 100%),
+    conic-gradient(from var(--pz-rim, 0deg),
+      rgba(255,200,150,0.55), rgba(250,235,150,0.45), rgba(170,235,200,0.45),
+      rgba(160,200,255,0.55), rgba(210,170,255,0.5), rgba(255,170,210,0.45), rgba(255,200,150,0.55));
+  opacity: 0.95;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg-prism { background: linear-gradient(165deg, #F0F1EE 0%, #E8E9E6 100%); }
+}
+
+/* 份量拉桿：軌道 Mist 深一點、已拉過的那段墨黑；拇指是一顆白色玻璃珠（28px，觸控區由 input 高度撐到 44）。 */
+.drvn-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  margin: 0;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.drvn-range:focus { outline: none; }
+.drvn-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #161415 0%, #161415 var(--pct, 0%), rgba(22,20,21,0.14) var(--pct, 0%), rgba(22,20,21,0.14) 100%);
+}
+.drvn-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, #fff 0%, #F6F4F1 55%, #E4DED2 100%);
+  border: 1px solid rgba(22,20,21,0.12);
+  box-shadow: 0 4px 12px -2px rgba(22,20,21,0.28), inset 0 1px 0 rgba(255,255,255,0.9);
+  transition: transform .15s cubic-bezier(0.16,1,0.3,1);
+}
+.drvn-range:active::-webkit-slider-thumb { transform: scale(1.12); }
+.drvn-range::-moz-range-track {
+  height: 6px; border-radius: 999px; background: rgba(22,20,21,0.14);
+}
+.drvn-range::-moz-range-progress { height: 6px; border-radius: 999px; background: #161415; }
+.drvn-range::-moz-range-thumb {
+  width: 28px; height: 28px; border-radius: 999px; background: #F6F4F1;
+  border: 1px solid rgba(22,20,21,0.12); box-shadow: 0 4px 12px -2px rgba(22,20,21,0.28);
+}

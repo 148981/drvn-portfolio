@@ -1,0 +1,138 @@
+/* WebView glass approximation: real backdrop transparency, restrained edge glints. */
+.drvn-glass-nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 92%;
+    max-width: 400px;
+    padding: 7px;
+    border-radius: 999px;
+    pointer-events: auto;
+    color: #161415;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    box-shadow: 0 5px 18px -12px rgb(40 32 27 / 12%);
+}
+
+/* 看不見的命中區：膠囊本身只有 62px 高、外圈還有 7px padding 是死區，
+   手指落在邊緣一點就完全沒反應。往外擴一圈純命中用的區域（不畫任何東西），
+   按鈕仍然疊在上面，所以點在按鈕上的行為不變。 */
+.drvn-glass-nav::before {
+    content: '';
+    position: absolute;
+    inset: -14px -10px -18px;
+    border-radius: 999px;
+}
+
+.drvn-glass-nav__material {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(145deg, rgb(255 255 255 / 34%), rgb(255 255 255 / 10%) 48%, rgb(255 255 255 / 24%));
+    -webkit-backdrop-filter: blur(16px) saturate(165%);
+    backdrop-filter: blur(16px) saturate(165%);
+    border: 0.5px solid rgb(255 255 255 / 64%);
+    box-shadow: inset 0 1px 1px rgb(255 255 255 / 95%), inset 1px 0 1px rgb(255 255 255 / 65%), inset 0 -1px 1px rgb(255 255 255 / 42%), inset -1px 0 1px rgb(74 65 57 / 12%);
+    pointer-events: none;
+}
+
+.drvn-glass-nav__lens-position {
+    position: absolute;
+    left: 7px;
+    top: 5px;
+    bottom: 5px;
+    width: calc((100% - 14px) / 5);
+    pointer-events: none;
+}
+.drvn-glass-nav__lens {
+    position: absolute;
+    inset: 0;
+    transform-origin: center center;
+    border-radius: 999px;
+    background: linear-gradient(145deg, rgb(255 255 255 / 40%), rgb(255 255 255 / 5%) 48%, rgb(255 255 255 / 23%));
+    border: 0.5px solid rgb(255 255 255 / 38%);
+    box-shadow: inset 0 1px 1px rgb(255 255 255 / 72%), inset 0 -1px 1.5px rgb(255 255 255 / 32%);
+    pointer-events: none;
+}
+
+/* Light stays within the glass instead of casting a colored outer glow. */
+.drvn-glass-nav__lens::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+        rgb(255 255 255 / 26%), transparent 24%,
+        transparent 72%, rgb(255 255 255 / 16%));
+    opacity: 0.45;
+    transition: opacity 120ms ease-out;
+    pointer-events: none;
+}
+.drvn-glass-nav__lens::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1.25px;
+    border-radius: inherit;
+    /* Mostly clear rim; short spectral glints sit beside the white highlights. */
+    background: conic-gradient(from 135deg,
+        rgb(255 255 255 / 58%), rgb(255 193 132 / 60%) 5%,
+        transparent 13%, transparent 31%,
+        rgb(180 145 240 / 56%) 36%, rgb(116 211 247 / 72%) 40%,
+        rgb(255 255 255 / 88%) 44%, transparent 53%,
+        transparent 76%, rgb(255 191 154 / 54%) 82%,
+        rgb(199 177 245 / 44%) 85%, rgb(255 255 255 / 68%) 89%,
+        rgb(255 255 255 / 58%));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0.72;
+    transition: opacity 120ms ease-out;
+    pointer-events: none;
+}
+.drvn-glass-nav__lens[data-pressed="true"]::before,
+.drvn-glass-nav__lens[data-pressed="true"]::after { opacity: 0.85; }
+
+
+.drvn-glass-nav__button {
+    position: relative;
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.drvn-glass-nav__button:focus-visible {
+    outline: 2px solid #c43c2f;
+    outline-offset: -3px;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .drvn-glass-nav__material { background: rgb(246 244 241 / 96%); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .drvn-glass-nav__material { background: #f6f4f1; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .drvn-glass-nav__lens { background: #fff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .drvn-glass-nav, .drvn-glass-nav__button { transform: none !important; animation: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .drvn-glass-nav__lens::before, .drvn-glass-nav__lens::after { transition: none; }
+}

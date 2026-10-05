@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>frontend</title>
+  <!-- 本地自架字體（Noto Sans TC / Bodoni Moda / Caveat / Montserrat / Plus Jakarta / Tenor / Cormorant 等）。 -->
+  <link rel="stylesheet" href="/fonts/fonts.css?v=1773732027" />
+  <!-- 🟡 Perf(font): 原本兩條遠端 Google Fonts 多半與上面的本地字體重複（Montserrat / Plus Jakarta /
+       Bodoni / Cormorant 都已本地化），且 Pattaya / Shrikhand / Exo 2 全專案沒用到。
+       這裡只保留「遠端獨有且有實際使用」的三個：JetBrains Mono、Outfit、Cookie。
+       加上 preconnect 讓字體連線提前建立、display=swap 避免遮字。 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- 主字體：Noto Sans TC（正文）+ Noto Serif TC（標題層次）+ 其他功能字體 -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Mono:wght@400;700&family=Outfit:wght@200;300;400;500&family=Manrope:wght@200;300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Caveat:wght@500;600;700&family=Michroma&family=Cookie&display=swap"
+    rel="stylesheet">
+  <style>
+    /* 🖋️ 辰宇落雁體 ChenYuluoyan（自架）— 檔案在 frontend/public/fonts/ChenYuluoyan-2.0-Thin.ttf。
+       沒放檔案時會自動回退 Noto Serif TC。 */
+    /* 字型已子集化（只留稱號用到的字）：原檔 9.5MB / 30.4MB → 各約 30KB。 */
+    @font-face {
+      font-family: 'ChenYuluoyan';
+      src: url('/fonts/ChenYuluoyan-2.0-Thin.subset.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* 🖋️ Chiron Sung HK SemiBold Italic（自架・子集）— 主頁稱號用。 */
+    @font-face {
+      font-family: 'ChironSungHK';
+      src: url('/fonts/ChironSungHK-SemiBoldItalic.subset.woff2') format('woff2');
+      font-weight: 600;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    html,
+    body {
+      background-color: #E4DED2 !important;
+    }
+  </style>
+</head>
+
+<body style="background-color: #E4DED2;">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

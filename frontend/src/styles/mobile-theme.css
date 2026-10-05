@@ -1,0 +1,276 @@
+/* Mobile-First Design System - New Color Palette */
+/* Based on reference image color scheme */
+
+:root {
+    /* ============================================================
+     * 設計規格統一色票 — Paper / Stone / Coral / Deep Black
+     * 兩組色票融合：暖調中性 + 一個強烈點睛色
+     * ============================================================ */
+
+    /* Core Palette */
+    --deep-black: #161415;       /* 主文字、大卡底色 */
+    --paper: #F6F4F1;            /* 頁面背景、卡片底 */
+    --stone: #E4DED2;            /* 次要卡片、分隔線 */
+    --pebble: #CFC6B8;           /* 邊框、過渡色 */
+    --coral: #F95C4B;            /* 主點綴：按鈕、日期選中、PR 卡 */
+    --ember: #D94030;            /* Coral 加深版，深底上使用 */
+
+    /* Legacy aliases (backward compat) */
+    --coral-red: var(--coral);
+    --olive-green: #A8BF59;      /* 暫留，逐步淘汰 */
+    --bright-yellow: #EECD27;    /* 暫留，逐步淘汰 */
+    --lavender: #A19FF7;
+    --coral-orange: var(--coral);
+    --soft-orange: var(--coral);
+    --sky-blue: #7FB3FF;
+    --neutral-gray: var(--pebble);
+
+    /* Background Colors */
+    --bg-primary: var(--paper);
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: var(--stone);
+
+    /* Text Colors */
+    --text-primary: var(--deep-black);
+    --text-secondary: #5A5755;
+    --text-tertiary: var(--pebble);
+    --text-inverse: var(--paper);
+
+    /* Functional Colors */
+    --success: #5A7A3A;
+    --warning: var(--ember);
+    --error: var(--coral);
+    --info: var(--stone);
+
+    /* Mobile-First Typography Scale */
+    --text-xs: 0.75rem;
+    /* 12px - captions */
+    --text-sm: 0.875rem;
+    /* 14px - labels */
+    --text-base: 1rem;
+    /* 16px - body */
+    --text-lg: 1.125rem;
+    /* 18px - subheadings */
+    --text-xl: 1.25rem;
+    /* 20px - card titles */
+    --text-2xl: 1.5rem;
+    /* 24px - section headers */
+    --text-3xl: 1.75rem;
+    /* 28px - page titles */
+
+    /* Line Heights */
+    --leading-tight: 1.2;
+    --leading-snug: 1.3;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.6;
+
+    /* Spacing Scale (Mobile-optimized) */
+    --space-xs: 0.25rem;
+    /* 4px */
+    --space-sm: 0.5rem;
+    /* 8px */
+    --space-md: 1rem;
+    /* 16px */
+    --space-lg: 1.5rem;
+    /* 24px */
+    --space-xl: 2rem;
+    /* 32px */
+    --space-2xl: 3rem;
+    /* 48px */
+
+    /* Container Padding (Mobile) */
+    --container-padding: 1rem;
+    /* 320px+ */
+    --container-padding-sm: 1.25rem;
+    /* 375px+ */
+    --container-padding-md: 1.5rem;
+    /* 430px+ */
+
+    /* Touch Target Sizes */
+    --touch-target-min: 44px;
+    /* iOS minimum */
+    --touch-target-preferred: 48px;
+    /* Material Design */
+
+    /* Border Radius */
+    --radius-sm: 0.5rem;
+    /* 8px */
+    --radius-md: 0.75rem;
+    /* 12px */
+    --radius-lg: 1rem;
+    /* 16px */
+    --radius-xl: 1.5rem;
+    /* 24px */
+    --radius-full: 9999px;
+
+    /* Shadows (Mobile-optimized - lighter) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+    /* Z-index Scale */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+}
+
+/* Mobile-First Base Styles */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+html {
+    font-size: 16px;
+    /* Base font size */
+    -webkit-text-size-adjust: 100%;
+    /* Prevent font scaling in landscape */
+}
+
+body {
+    font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: var(--leading-normal);
+    font-weight: 500;
+    /* Medium as default */
+}
+
+/* Safe Area Insets for iPhone notch/dynamic island */
+@supports (padding: max(0px)) {
+    body {
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
+}
+
+/* Container Utility */
+.mobile-container {
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 375px) {
+    .mobile-container {
+        padding-left: var(--container-padding-sm);
+        padding-right: var(--container-padding-sm);
+    }
+}
+
+@media (min-width: 430px) {
+    .mobile-container {
+        padding-left: var(--container-padding-md);
+        padding-right: var(--container-padding-md);
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-container {
+        max-width: 640px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-container {
+        max-width: 768px;
+    }
+}
+
+/* Touch-Friendly Interactive Elements */
+button,
+a,
+[role="button"] {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+button:active,
+a:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+    transition: all 0.1s ease;
+}
+
+/* Card Components */
+.mobile-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-md);
+}
+
+.mobile-card-compact {
+    padding: var(--space-sm);
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--text-primary);
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.text-tertiary {
+    color: var(--text-tertiary);
+}
+
+.bg-coral-red {
+    background-color: var(--coral-red);
+}
+
+.bg-olive-green {
+    background-color: var(--olive-green);
+}
+
+.bg-bright-yellow {
+    background-color: var(--bright-yellow);
+}
+
+.bg-lavender {
+    background-color: var(--lavender);
+}
+
+.bg-coral-orange {
+    background-color: var(--coral-orange);
+}
+
+.bg-soft-orange {
+    background-color: var(--soft-orange);
+}
+
+.bg-sky-blue {
+    background-color: var(--sky-blue);
+}
+
+.text-coral-red {
+    color: var(--coral-red);
+}
+
+.text-olive-green {
+    color: var(--olive-green);
+}
+
+.text-lavender {
+    color: var(--lavender);
+}
+
+.text-sky-blue {
+    color: var(--sky-blue);
+}

@@ -1,0 +1,223 @@
+/* Bottom Navigation Styles - Morandi LOEWE Edition */
+
+:root {
+    --loewe-truffle-translucent: rgba(62, 57, 53, 0.85);
+    --loewe-caramel: #C68E5D;
+    --loewe-sand: #E0D8D3;
+    --loewe-dark: #262523;
+}
+
+.bottom-navigation {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-fixed, 1200);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+    /* Floating gap */
+    background: transparent;
+    pointer-events: none;
+    /* Let clicks pass through the empty areas */
+}
+
+.bottom-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 420px;
+    /* More compact floating capsule */
+    margin: 0 auto;
+    padding: 8px 12px;
+    height: auto;
+    min-height: 72px;
+
+    /* Loewe Glass Design */
+    background: var(--loewe-truffle-translucent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 36px;
+    border: 1px solid rgba(224, 216, 211, 0.1);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    pointer-events: auto;
+    /* Re-enable clicks */
+}
+
+/* Inactive State - Specific Colors */
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    -webkit-tap-highlight-color: transparent;
+
+    /* Base styles */
+    opacity: 0.7;
+}
+
+/* Home - Sage Green (Inactive) */
+.nav-item.nav-sage {
+    color: #8F9E8B !important;
+    opacity: 0.9 !important;
+}
+
+.nav-item.nav-sage .nav-icon,
+.nav-item.nav-sage .nav-label {
+    color: #8F9E8B !important;
+}
+
+/* Workout - Caramel (Inactive) */
+.nav-item.nav-caramel {
+    color: #C68E5D !important;
+    opacity: 0.9 !important;
+}
+
+.nav-item.nav-caramel .nav-icon,
+.nav-item.nav-caramel .nav-label {
+    color: #C68E5D !important;
+}
+
+/* Cardio - Clay (Inactive) */
+.nav-item.nav-clay {
+    color: #A67C52 !important;
+    opacity: 0.9 !important;
+}
+
+.nav-item.nav-clay .nav-icon,
+.nav-item.nav-clay .nav-label {
+    color: #A67C52 !important;
+}
+
+/* Progress - Steel (Inactive) */
+.nav-item.nav-steel {
+    color: #7A8B99 !important;
+    opacity: 0.9 !important;
+}
+
+.nav-item.nav-steel .nav-icon,
+.nav-item.nav-steel .nav-label {
+    color: #7A8B99 !important;
+}
+
+/* Profile - Sand (Inactive) */
+.nav-item.nav-sand {
+    color: #D3C6B9 !important;
+    opacity: 0.9 !important;
+}
+
+.nav-item.nav-sand .nav-icon,
+.nav-item.nav-sand .nav-label {
+    color: #D3C6B9 !important;
+}
+
+
+.nav-item:hover {
+    opacity: 0.8;
+}
+
+/* Active State - Default Fallback */
+.nav-item.active {
+    background-color: var(--loewe-caramel);
+    color: var(--loewe-dark);
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(198, 142, 93, 0.3);
+}
+
+/* Home - Sage Green (Original Loewe Green) */
+.nav-item.nav-sage.active {
+    background-color: #8F9E8B;
+    color: #262523;
+    box-shadow: 0 4px 12px rgba(143, 158, 139, 0.3);
+}
+
+/* Workout - Caramel (Original Loewe Leather) */
+.nav-item.nav-caramel.active {
+    background-color: #C68E5D;
+    color: #262523;
+    box-shadow: 0 4px 12px rgba(198, 142, 93, 0.3);
+}
+
+/* Cardio - Clay/Terracotta */
+.nav-item.nav-clay.active {
+    background-color: #A67C52;
+    color: #F5EFE7;
+    /* Lighter text for contrast */
+    box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3);
+}
+
+/* Progress - Steel / Morandi Blue */
+.nav-item.nav-steel.active {
+    background-color: #7A8B99;
+    color: #F5EFE7;
+    box-shadow: 0 4px 12px rgba(122, 139, 153, 0.3);
+}
+
+/* Profile - Sand/Beige */
+.nav-item.nav-sand.active {
+    background-color: #D3C6B9;
+    color: #3E2723;
+    box-shadow: 0 4px 12px rgba(211, 198, 185, 0.3);
+}
+
+.nav-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.nav-icon {
+    transition: all 0.3s ease;
+}
+
+/* Remove old indicator dot since we use background now */
+.active-indicator {
+    display: none;
+}
+
+.nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active .nav-label {
+    font-weight: 700;
+}
+
+/* 響應式調整 */
+@media (max-width: 640px) {
+    .bottom-navigation {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .bottom-nav-container {
+        width: 100%;
+    }
+
+    .nav-item {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* 為底部導航留出空間 */
+body {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
