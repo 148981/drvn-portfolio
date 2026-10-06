@@ -6,6 +6,20 @@ DRVN 從我的畢業專題延伸而來：專題是用一支手機鏡頭比對使
 
 > 這個 repo 是給審閱用的**精選版本**。完整的開發 repo 是私人的，這裡沒有放：受試者影片與實驗原始資料、圖片素材、建置產物、環境變數與金鑰，以及開發過程中的報告。因為拿掉了圖片素材，前端無法直接 build；但下面提到的稽核腳本都可以直接執行。
 
+## 申請文件
+
+| 文件 | 檔案 |
+|---|---|
+| 程式作品集（3 頁：系統架構、資料流、影片分析流程、畢業專題） | [`docs/portfolio.pdf`](docs/portfolio.pdf) |
+| 畢業專題海報（生醫系畢業專題海報競賽第一名，共 30 組） | [`docs/poster_graduation_project.pdf`](docs/poster_graduation_project.pdf) |
+| 海報競賽金獎證書 | [`docs/application/certificate_poster-gold-award.pdf`](docs/application/certificate_poster-gold-award.pdf) |
+| 履歷（臺大生醫電資所 生醫電子組） | [`docs/application/resume_NTU-BEBI_biomedical-electronics.pdf`](docs/application/resume_NTU-BEBI_biomedical-electronics.pdf) |
+| 申請動機與個人陳述（臺大生醫電資所 生醫電子組） | [`docs/application/statement_NTU-BEBI_biomedical-electronics.pdf`](docs/application/statement_NTU-BEBI_biomedical-electronics.pdf) |
+| 履歷（臺大醫學工程學系 碩士班丙組） | [`docs/application/resume_NTU-BME_group-C.pdf`](docs/application/resume_NTU-BME_group-C.pdf) |
+| 就學計畫書（臺大醫學工程學系 碩士班丙組，含履歷共 2 頁） | [`docs/application/study-plan_NTU-BME_group-C.pdf`](docs/application/study-plan_NTU-BME_group-C.pdf) |
+
+---
+
 ![系統架構](docs/architecture.png)
 
 資料流程圖：[`docs/flows/`](docs/flows/)
